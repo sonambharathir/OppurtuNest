@@ -227,7 +227,7 @@ export default function ProfileOnboarding({ onClose }) {
     ],
 
     // Goals
-    goal: "",
+    goals: [],
 
     // Preferences
     opportunityTypes: [],
@@ -1576,20 +1576,22 @@ export default function ProfileOnboarding({ onClose }) {
 
                   <button
                     type="button"
-                    className={`project-choice ${
-                      formData.goal === "internships"
-                        ? "project-choice-active"
-                        : ""
-                    }`}
+                   className={`project-choice ${
+  formData.goals.includes("internships")
+    ? "project-choice-active"
+    : ""
+}`}
                     onClick={() =>
-                      setFormData((previous) => ({
-                        ...previous,
-                        goal: "internships",
-                      }))
-                    }
+  setFormData((previous) => ({
+    ...previous,
+    goals: previous.goals.includes("internships")
+      ? previous.goals.filter((item) => item !== "internships")
+      : [...previous.goals, "internships"],
+  }))
+}
                   >
                     <span className="project-radio">
-                      {formData.goal === "internships" && <span />}
+                      {formData.goals.includes("internships") && <span />}
                     </span>
 
                     <span className="project-choice-content">
@@ -1601,23 +1603,25 @@ export default function ProfileOnboarding({ onClose }) {
                       </small>
                     </span>
                   </button>
-
-                  <button
-                    type="button"
-                    className={`project-choice ${
-                      formData.goal === "jobs"
-                        ? "project-choice-active"
-                        : ""
-                    }`}
-                    onClick={() =>
-                      setFormData((previous) => ({
-                        ...previous,
-                        goal: "jobs",
-                      }))
-                    }
-                  >
+<button
+  type="button"
+  className={`project-choice ${
+    formData.goals.includes("jobs")
+      ? "project-choice-active"
+      : ""
+  }`}
+  onClick={() =>
+    setFormData((previous) => ({
+      ...previous,
+      goals: previous.goals.includes("jobs")
+        ? previous.goals.filter((item) => item !== "jobs")
+        : [...previous.goals, "jobs"],
+    }))
+  }
+>
+                  
                     <span className="project-radio">
-                      {formData.goal === "jobs" && <span />}
+                     {formData.goals.includes("jobs") && <span />}
                     </span>
 
                     <span className="project-choice-content">
@@ -1661,19 +1665,21 @@ export default function ProfileOnboarding({ onClose }) {
                   <button
                     type="button"
                     className={`project-choice ${
-                      formData.goal === "explore"
+                      formData.goals.includes("explore")
                         ? "project-choice-active"
                         : ""
                     }`}
-                    onClick={() =>
-                      setFormData((previous) => ({
-                        ...previous,
-                        goal: "explore",
-                      }))
-                    }
+                   onClick={() =>
+  setFormData((previous) => ({
+    ...previous,
+    goals: previous.goals.includes("explore")
+      ? previous.goals.filter((item) => item !== "explore")
+      : [...previous.goals, "explore"],
+  }))
+}
                   >
                     <span className="project-radio">
-                      {formData.goal === "explore" && <span />}
+                      {formData.goals.includes("explore") && <span />}
                     </span>
 
                     <span className="project-choice-content">
