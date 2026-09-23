@@ -1,0 +1,1017 @@
+/* =============================================================
+   OPPURTUNEST — MINIMAL STUDENT-ILLUSTRATED PASTEL DESIGN
+   ============================================================= */
+
+.storybook-app-container {
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+  background-color: #cde8ee;
+  color: #223f35;
+  overflow-x: hidden;
+}
+
+/* -------------------------------------------------------------
+   1. FIRST VIEWPORT / HERO
+   Clean, focused hero ending at the lake!
+------------------------------------------------------------- */
+.hero-viewport {
+  width: 100%;
+  height: 100vh;
+  min-height: 640px;
+  max-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: linear-gradient(180deg, #cce8ee 0%, #d8edf1 45%, #e6f3f5 75%, #d6eed4 96%, #69abb3 100%);
+  box-sizing: border-box;
+}
+
+/* Top Navbar (Clean, Unobtrusive, NO CTA button) */
+.site-navbar {
+  width: 100%;
+  position: relative;
+  z-index: 20;
+  padding: 1.2rem 3.5rem;
+}
+
+.navbar-container {
+  max-width: 1240px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+}
+
+.brand-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-title {
+  font-family: 'Fredoka', var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #244136;
+  letter-spacing: -0.3px;
+}
+
+.navbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 2.2rem;
+}
+
+.nav-item {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #38594e;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  position: relative;
+  padding: 0.2rem 0;
+}
+
+.nav-item:hover,
+.nav-item.active {
+  color: #1e362c;
+}
+
+.nav-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #508a6e;
+  border-radius: 2px;
+}
+
+/* Hero Main Content (PRIMARY FOCUS) */
+.hero-main-container {
+  position: relative;
+  z-index: 10;
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.hero-tagline {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #3b5d50;
+  letter-spacing: 0.4px;
+  margin-bottom: 0.4rem;
+}
+
+.hero-title {
+  font-family: 'Fredoka', var(--font-heading);
+  font-size: 3.6rem;
+  font-weight: 700;
+  color: #223f35;
+  letter-spacing: -1.2px;
+  margin-bottom: 0.55rem;
+  line-height: 1.1;
+}
+
+.hero-subtitle {
+  font-size: 1.02rem;
+  font-weight: 500;
+  color: #45665a;
+  max-width: 640px;
+  line-height: 1.45;
+  margin-bottom: 1.8rem;
+}
+
+/* 7 Horizontal Opportunity Category Badges */
+.hero-categories-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1rem;
+  width: 100%;
+  margin-bottom: 1.8rem;
+  flex-wrap: nowrap;
+}
+
+.hero-category-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 108px;
+  transition: transform 0.2s ease;
+}
+
+.hero-category-item:hover {
+  transform: translateY(-2px);
+}
+
+/* Little boxes for category icons (Clean, coded look) */
+.cat-icon-bubble {
+  width: 44px;
+  height: 44px;
+  border-radius: 9px;
+  background: #ffffff;
+  border: 1.5px solid #2d4f40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.45rem;
+  box-shadow: 2px 2px 0px rgba(35, 62, 51, 0.18);
+  color: #244136;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.hero-category-item:hover .cat-icon-bubble {
+  transform: translateY(-2px);
+  box-shadow: 2px 4px 0px rgba(35, 62, 51, 0.25);
+}
+
+.cat-internships .cat-icon-bubble {
+  color: #166534;
+  border-color: #166534;
+  background: #ffffff;
+  box-shadow: 2px 2px 0px rgba(22, 101, 52, 0.22);
+}
+
+.cat-hackathons .cat-icon-bubble {
+  color: #0e7490;
+  border-color: #0e7490;
+  background: #ffffff;
+  box-shadow: 2px 2px 0px rgba(14, 116, 144, 0.22);
+}
+
+.cat-scholarships .cat-icon-bubble {
+  color: #1d4ed8;
+  border-color: #1d4ed8;
+  background: #ffffff;
+  box-shadow: 2px 2px 0px rgba(29, 78, 216, 0.22);
+}
+
+.cat-competitions .cat-icon-bubble {
+  color: #b45309;
+  border-color: #b45309;
+  background: #ffffff;
+  box-shadow: 2px 2px 0px rgba(180, 83, 9, 0.22);
+}
+
+.cat-workshops .cat-icon-bubble {
+  color: #7c3aed;
+  border-color: #7c3aed;
+  background: #ffffff;
+  box-shadow: 2px 2px 0px rgba(124, 58, 237, 0.22);
+}
+
+.cat-research .cat-icon-bubble {
+  color: #0284c7;
+  border-color: #0284c7;
+  background: #ffffff;
+  box-shadow: 2px 2px 0px rgba(2, 132, 199, 0.22);
+}
+
+.cat-certifications .cat-icon-bubble {
+  color: #4338ca;
+  border-color: #4338ca;
+  background: #ffffff;
+  box-shadow: 2px 2px 0px rgba(67, 56, 202, 0.22);
+}
+
+.cat-text-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.cat-name {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #244136;
+  margin-bottom: 0.15rem;
+}
+
+.cat-desc {
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: #557568;
+  line-height: 1.22;
+}
+
+/* Two Hero Action Buttons: ONLY ONE "Start Your Journey →" */
+.hero-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.btn-coral {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #ea655d;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.92rem;
+  padding: 0.7rem 1.8rem;
+  border-radius: 999px;
+  box-shadow: 0 4px 14px rgba(234, 101, 93, 0.3);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  text-decoration: none;
+}
+
+.btn-coral:hover {
+  background-color: #dc564e;
+  transform: translateY(-1px);
+}
+
+.btn-arrow {
+  font-size: 1rem;
+  transition: transform 0.2s ease;
+}
+
+.btn-coral:hover .btn-arrow {
+  transform: translateX(3px);
+}
+
+.btn-frosted {
+  display: inline-flex;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.72);
+  color: #264338;
+  font-weight: 600;
+  font-size: 0.92rem;
+  padding: 0.7rem 1.8rem;
+  border-radius: 999px;
+  border: 1.2px solid rgba(80, 130, 100, 0.32);
+  backdrop-filter: blur(4px);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  text-decoration: none;
+}
+
+.btn-frosted:hover {
+  background-color: #ffffff;
+  transform: translateY(-1px);
+}
+
+/* Corner decorations & lake in Hero (Larger, balanced, hand-coded) */
+.hero-landscape-bottom {
+  position: relative;
+  width: 100%;
+  height: 140px;
+  z-index: 5;
+  display: flex;
+  align-items: flex-end;
+  pointer-events: none;
+}
+
+.hero-corner-tree-left {
+  position: absolute;
+  left: 5px;
+  bottom: 38px;
+  z-index: 6;
+  width: 180px;
+  height: 135px;
+  opacity: 0.95;
+}
+
+.hero-corner-tree-right {
+  position: absolute;
+  right: 5px;
+  bottom: 38px;
+  z-index: 6;
+  width: 180px;
+  height: 135px;
+  opacity: 0.95;
+}
+
+.hero-mascot-sticker {
+  position: absolute;
+  left: 50%;
+  bottom: 38px;
+  transform: translateX(-50%);
+  z-index: 7;
+}
+
+/* The Lake Water Body */
+.hero-lake-water {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 44px;
+  z-index: 5;
+}
+
+.lake-ripples-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+
+/* -------------------------------------------------------------
+   2. CONTINUOUS LANDSCAPE BODY (Below the Lake)
+------------------------------------------------------------- */
+.continuous-landscape-body {
+  width: 100%;
+  background: linear-gradient(180deg, #c2e4bb 0%, #cbe9c4 15%, #d4eed0 45%, #c5e7bd 75%, #a6d89e 100%);
+  position: relative;
+  z-index: 2;
+  overflow: hidden;
+}
+
+/* Section Headings */
+.section-heading {
+  font-family: 'Fredoka', var(--font-heading);
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #223f35;
+  text-align: center;
+  letter-spacing: -0.4px;
+}
+
+.section-title-wrap {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+
+/* -------------------------------------------------------------
+   SECTION 1 — YOUR SKILL JOURNEY
+------------------------------------------------------------- */
+.skill-journey-section {
+  position: relative;
+  padding: 4rem 2rem 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.journey-path-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  max-width: 980px;
+  width: 100%;
+  flex-wrap: nowrap;
+}
+
+.journey-node {
+  background: rgba(255, 255, 255, 0.82);
+  border: 1.4px solid rgba(80, 135, 100, 0.3);
+  border-radius: 36px;
+  padding: 0.8rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(45, 80, 60, 0.05);
+  transition: transform 0.2s ease;
+}
+
+.journey-node:hover {
+  transform: translateY(-2px);
+}
+
+.node-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #234036;
+}
+
+.node-skills {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.75rem 1.3rem;
+}
+
+.mini-skills-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.mini-icon-circle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bg-mint { background: #daf0d9; border: 1px solid #7cb97c; }
+.bg-teal { background: #d7eef1; border: 1px solid #6cb4bc; }
+.bg-purple { background: #eee4f7; border: 1px solid #a685c4; }
+.bg-amber { background: #faeed0; border: 1px solid #d4ae5c; }
+
+/* Minimal Vine Connector */
+.vine-connector {
+  width: 54px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.simple-vine-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.journey-grass-accents {
+  margin-top: 1.2rem;
+  opacity: 0.7;
+}
+
+
+/* -------------------------------------------------------------
+   SECTION 2 — QUICK ACCESS (Clean, no river, content focused)
+------------------------------------------------------------- */
+.quick-access-section {
+  position: relative;
+  padding: 2.5rem 2rem 3.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quick-access-content-grid {
+  position: relative;
+  z-index: 10;
+  max-width: 1080px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+/* Left: Quick Access Buttons (Main Focus) */
+.quick-access-left-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.4rem;
+}
+
+.quick-action-bubbles-row {
+  display: flex;
+  align-items: center;
+  gap: 1.8rem;
+}
+
+.quick-action-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.quick-action-item:hover {
+  transform: translateY(-2px);
+}
+
+.action-circle-bubble {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1.6px solid rgba(85, 140, 105, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(45, 80, 60, 0.06);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.quick-action-item:hover .action-circle-bubble {
+  background: #ffffff;
+  border-color: rgba(60, 120, 85, 0.55);
+}
+
+.action-bubble-label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #234036;
+}
+
+/* Center: Small Mascot Sticker */
+.quick-access-mascot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.95;
+}
+
+/* Right: Frosted Assessment Panel */
+.quick-access-right-col {
+  max-width: 380px;
+}
+
+.assessment-hero-panel {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(6px);
+  border: 1.5px solid rgba(85, 140, 105, 0.3);
+  border-radius: 24px;
+  padding: 1.8rem 2rem;
+  box-shadow: 0 6px 20px rgba(40, 75, 55, 0.06);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.assessment-panel-title {
+  font-family: 'Fredoka', var(--font-heading);
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #223f35;
+  line-height: 1.25;
+}
+
+.assessment-panel-desc {
+  font-size: 0.92rem;
+  color: #48695d;
+  line-height: 1.4;
+}
+
+.assessment-btn {
+  align-self: flex-start;
+}
+
+
+/* -------------------------------------------------------------
+   SECTION 3 — RECOMMENDED OPPORTUNITIES
+------------------------------------------------------------- */
+.recommended-section {
+  position: relative;
+  padding: 3.5rem 2rem 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Balanced side tree illustrations for Recommended Opportunities */
+.recommended-corner-tree-left {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 160px;
+  height: 185px;
+  opacity: 0.95;
+  pointer-events: none;
+}
+
+.recommended-corner-tree-right {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 160px;
+  height: 185px;
+  opacity: 0.95;
+  pointer-events: none;
+}
+
+.recommended-center-content {
+  position: relative;
+  z-index: 10;
+  max-width: 960px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.organic-cards-container {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  width: 100%;
+  align-items: center;
+}
+
+.organic-cards-row {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 1.2rem;
+  width: 100%;
+}
+
+.organic-opportunity-card {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(6px);
+  border: 1.4px solid rgba(85, 140, 105, 0.3);
+  border-radius: 18px;
+  padding: 1.3rem 1.5rem;
+  box-shadow: 0 4px 14px rgba(45, 80, 60, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  flex: 1;
+  max-width: 270px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  text-align: left;
+}
+
+.organic-opportunity-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(45, 80, 60, 0.09);
+  background: #ffffff;
+}
+
+.card-opportunity-title {
+  font-family: 'Fredoka', var(--font-heading);
+  font-size: 1.12rem;
+  font-weight: 700;
+  color: #223f35;
+}
+
+.card-opportunity-desc {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #48685c;
+  line-height: 1.35;
+}
+
+
+/* -------------------------------------------------------------
+   SECTION 4 — YOUR INSIGHTS & GROWTH
+------------------------------------------------------------- */
+.insights-growth-section {
+  position: relative;
+  padding: 3.5rem 2rem 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.insights-dashboard-grid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.8rem;
+  max-width: 980px;
+  width: 100%;
+  margin-bottom: 2.2rem;
+}
+
+.insights-card {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1.4px solid rgba(85, 140, 105, 0.3);
+  border-radius: 20px;
+  padding: 1.3rem 1.5rem;
+  box-shadow: 0 4px 16px rgba(45, 80, 60, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.chart-card {
+  width: 260px;
+  height: 155px;
+}
+
+.hand-drawn-chart-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.wave-card {
+  width: 250px;
+  height: 155px;
+  justify-content: space-between;
+  padding: 1.4rem 1.3rem;
+}
+
+.wavy-flow-svg {
+  width: 100%;
+  height: 65px;
+}
+
+.upcoming-card {
+  width: 270px;
+  height: 155px;
+  justify-content: space-between;
+  padding: 1.2rem 1.3rem;
+}
+
+.progress-pill-wrapper {
+  width: 100%;
+}
+
+.progress-track {
+  width: 100%;
+  height: 16px;
+  background: rgba(245, 240, 230, 0.85);
+  border: 1.2px solid rgba(85, 140, 105, 0.32);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 999px;
+}
+
+.progress-fill-coral {
+  background: #ea655d;
+}
+
+.progress-fill-mint {
+  background: #5ea87f;
+}
+
+.upcoming-subpanel {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.upcoming-title {
+  font-family: 'Fredoka', var(--font-heading);
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #244136;
+}
+
+.date-badges-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.date-badge-item {
+  background: #ffffff;
+  border: 1.2px solid rgba(85, 140, 105, 0.32);
+  border-radius: 8px;
+  padding: 0.3rem 0.6rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.date-badge-label {
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: #557568;
+}
+
+.date-badge-num {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #244136;
+}
+
+.insights-cta-wrap {
+  margin-top: 0.4rem;
+}
+
+.btn-frosted-pill {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.82);
+  color: #244136;
+  font-weight: 700;
+  font-size: 0.92rem;
+  padding: 0.68rem 1.85rem;
+  border-radius: 999px;
+  border: 1.4px solid rgba(85, 140, 105, 0.35);
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(45, 80, 60, 0.05);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-frosted-pill:hover {
+  background: #ffffff;
+  transform: translateY(-1px);
+}
+
+.insights-grass-decor {
+  margin-top: 1.2rem;
+  opacity: 0.7;
+}
+
+
+/* -------------------------------------------------------------
+   5. FOOTER
+------------------------------------------------------------- */
+.storybook-footer {
+  position: relative;
+  width: 100%;
+  padding-bottom: 2.5rem;
+  background: #75a56d;
+}
+
+.footer-divider-curve {
+  width: 100%;
+  height: 35px;
+  position: relative;
+  top: -1px;
+}
+
+.footer-divider-curve svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.footer-content {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1.5rem;
+}
+
+.footer-center {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.footer-brand-title {
+  font-family: 'Fredoka', var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a352a;
+}
+
+.footer-tagline {
+  font-size: 0.86rem;
+  color: #264336;
+  max-width: 500px;
+}
+
+
+/* =============================================================
+   RESPONSIVE MEDIA QUERIES
+   ============================================================= */
+
+@media (max-width: 1120px) {
+  .hero-categories-row {
+    flex-wrap: wrap;
+    gap: 0.8rem 1.2rem;
+  }
+
+  .journey-path-container {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .vine-connector {
+    display: none;
+  }
+
+  .quick-access-content-grid {
+    flex-direction: column;
+    gap: 2rem;
+    text-align: center;
+  }
+
+  .quick-access-left-col {
+    align-items: center;
+  }
+
+  .assessment-hero-panel {
+    text-align: center;
+    align-items: center;
+  }
+
+  .assessment-btn {
+    align-self: center;
+  }
+
+  .recommended-corner-tree-left,
+  .recommended-corner-tree-right {
+    display: none;
+  }
+
+  .insights-dashboard-grid {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 768px) {
+  .site-navbar {
+    padding: 1rem 1.5rem;
+  }
+
+  .navbar-container {
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+
+  .navbar-nav {
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .hero-title {
+    font-size: 2.7rem;
+  }
+
+  .hero-subtitle {
+    font-size: 0.92rem;
+  }
+
+  .hero-corner-tree-left,
+  .hero-corner-tree-right {
+    display: none;
+  }
+
+  .hero-categories-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.7rem;
+  }
+
+  .hero-category-item {
+    max-width: 100%;
+  }
+
+  .organic-cards-row {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .organic-opportunity-card {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .insights-dashboard-grid {
+    flex-direction: column;
+  }
+}

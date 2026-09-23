@@ -1,0 +1,83 @@
+/* CSS Reset & Global Theme */
+:root {
+  --font-main: 'Quicksand', 'Fredoka', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-heading: 'Fredoka', 'Quicksand', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  
+  /* Storybook Natural Palette */
+  --sky-top: #c2e2eb;
+  --sky-mid: #d7edf2;
+  --sky-bottom: #e9f5f6;
+  
+  --hill-light: #d6eed2;
+  --hill-mid: #bfdfb7;
+  --hill-green: #a7d49e;
+  --hill-deep: #84be7b;
+  
+  --water-teal: #68abb3;
+  --water-deep: #559da6;
+  --water-light: #89cdd4;
+  --water-foam: #e1f5f7;
+  
+  --sand-path: #eddcb9;
+  --sand-border: #dfc89f;
+  
+  --tree-dark: #3b664e;
+  --tree-mid: #4e8062;
+  --tree-light: #6ea781;
+  --tree-trunk: #7a5135;
+  
+  --coral-btn: #ea655d;
+  --coral-btn-hover: #dc564e;
+  
+  --text-dark: #223c34;
+  --text-muted: #4e6b61;
+  --text-light: #67867b;
+  
+  --card-bg: rgba(255, 255, 255, 0.72);
+  --card-border: rgba(120, 175, 140, 0.28);
+  --card-shadow: 0 8px 24px -6px rgba(45, 80, 60, 0.08);
+}
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-family: var(--font-main);
+  background-color: var(--sky-top);
+  color: var(--text-dark);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}

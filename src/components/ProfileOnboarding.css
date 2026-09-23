@@ -1,0 +1,1352 @@
+/* =========================================================
+   OppurtuNest — Profile Onboarding
+   Layout inspired by the provided reference screenshot
+========================================================= */
+
+.profile-onboarding {
+  min-height: 100vh;
+  width: 100%;
+
+  position: relative;
+  overflow-x: hidden;
+
+  background: #edf4e8;
+  color: #403731;
+
+  font-family: "Nunito", sans-serif;
+}
+
+/* Remove the decorative glow elements from the previous design */
+.onboarding-sky-glow {
+  display: none;
+}
+
+/* =========================================================
+   MAIN PAGE CONTAINER
+========================================================= */
+
+.onboarding-container {
+  width: min(1080px, calc(100% - 90px));
+  min-height: 100vh;
+
+  margin: 0 auto;
+
+  padding: 28px 0 55px;
+
+  position: relative;
+  z-index: 2;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.onboarding-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  height: 42px;
+
+  margin-bottom: 25px;
+}
+
+.onboarding-brand {
+  order: 1;
+
+  color: #719b7d;
+
+  font-family: "Fredoka", sans-serif;
+  font-size: 31px;
+  font-weight: 600;
+
+  letter-spacing: -0.8px;
+}
+
+.onboarding-back-home {
+  order: 2;
+
+  border: none;
+  background: transparent;
+
+  color: #6c8068;
+
+  font-family: "Nunito", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  padding: 7px 4px;
+
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.onboarding-back-home:hover {
+  color: #4e684f;
+  transform: translateX(-2px);
+}
+
+/* =========================================================
+   INTRO
+========================================================= */
+
+.onboarding-intro {
+  margin-bottom: 28px;
+}
+
+.onboarding-eyebrow {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #3f3933;
+
+  font-family: "Nunito", sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+
+  letter-spacing: 0.2px;
+}
+
+.onboarding-intro h1 {
+  margin: 0 0 5px;
+
+  color: #40352f;
+
+  font-family: "Fredoka", sans-serif;
+  font-size: 38px;
+  font-weight: 600;
+
+  line-height: 1.12;
+
+  letter-spacing: -0.8px;
+}
+
+.onboarding-intro p {
+  max-width: 790px;
+
+  margin: 0;
+
+  color: #4f4842;
+
+  font-family: "Nunito", sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+
+  line-height: 1.45;
+}
+
+/* =========================================================
+   MAIN TWO-COLUMN JOURNEY AREA
+========================================================= */
+
+.onboarding-main {
+  width: 100%;
+}
+
+/*
+  The progress and card sit beside each other,
+  exactly like the reference image.
+*/
+
+.onboarding-progress {
+  position: absolute;
+
+  left: 0;
+  top: 235px;
+
+  width: 275px;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 0;
+
+  padding: 0;
+
+  margin: 0;
+}
+
+/* =========================================================
+   VERTICAL PROGRESS LINE
+========================================================= */
+
+.progress-line {
+  position: absolute;
+
+  left: 22px;
+  top: 22px;
+  bottom: 22px;
+
+  width: 3px;
+
+  background: #c5d1bb;
+
+  border-radius: 10px;
+
+  z-index: 0;
+}
+
+/* =========================================================
+   INDIVIDUAL PROGRESS STEPS
+========================================================= */
+
+.progress-step {
+  position: relative;
+  z-index: 1;
+
+  display: flex;
+  align-items: center;
+
+  min-height: 58px;
+
+  padding: 0;
+
+  text-align: left;
+}
+
+.progress-step span {
+  flex: 0 0 auto;
+
+  width: 43px;
+  height: 43px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 13px;
+
+  border: 2px solid rgba(72, 68, 57, 0.18);
+
+  background: #f8f4dd;
+
+  color: #514940;
+
+  font-family: "Fredoka", sans-serif;
+  font-size: 17px;
+  font-weight: 500;
+
+  box-shadow: 0 2px 4px rgba(70, 66, 55, 0.06);
+}
+
+.progress-step small {
+  display: block;
+
+  margin-left: 12px;
+
+  color: #423b35;
+
+  font-family: "Nunito", sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+
+  line-height: 1.2;
+
+  white-space: nowrap;
+}
+
+/*
+  Soft variation between the steps.
+  These are intentionally subtle rather than
+  turning every step into a card.
+*/
+
+.progress-step:nth-of-type(3) span {
+  background: #f5e9ba;
+}
+
+.progress-step:nth-of-type(4) span {
+  background: #f5f2df;
+}
+
+.progress-step:nth-of-type(5) span {
+  background: #ded2b8;
+}
+
+.progress-step:nth-of-type(6) span {
+  background: #c69d87;
+}
+
+.progress-step:nth-of-type(7) span {
+  background: #d5c1aa;
+}
+
+.progress-step:nth-of-type(8) span {
+  background: #c8b7a1;
+}
+
+/* Active step */
+
+.progress-step-active span {
+  background: #8fb59b;
+
+  border-color: #72967e;
+
+  color: #ffffff;
+
+  box-shadow:
+    0 3px 7px rgba(77, 107, 82, 0.16);
+}
+
+.progress-step-active small {
+  color: #3f4e40;
+  font-weight: 700;
+}
+
+/* =========================================================
+   FORM CARD
+========================================================= */
+
+.academic-card {
+  width: calc(100% - 310px);
+
+  margin-left: 310px;
+
+  padding: 25px 30px 25px;
+
+  background: rgba(255, 255, 255, 0.84);
+
+  border: 1px solid rgba(255, 255, 255, 0.85);
+
+  border-radius: 27px;
+
+  box-shadow:
+    0 8px 24px rgba(79, 83, 68, 0.07);
+
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+/* =========================================================
+   CARD HEADER
+========================================================= */
+
+.academic-card-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  margin-bottom: 22px;
+}
+
+.card-step-label {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #4d463f;
+
+  font-family: "Nunito", sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.academic-card-heading h2 {
+  margin: 0 0 4px;
+
+  color: #443a34;
+
+  font-family: "Fredoka", sans-serif;
+  font-size: 25px;
+  font-weight: 600;
+
+  line-height: 1.15;
+}
+
+.academic-card-heading p {
+  margin: 0;
+
+  color: #615951;
+
+  font-family: "Nunito", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+
+  line-height: 1.4;
+}
+
+/*
+  Your JSX contains the 🌿 element.
+  The reference layout doesn't need another card/icon here,
+  so keep it visually out of the way.
+*/
+
+.academic-leaf {
+  display: none;
+}
+
+/* =========================================================
+   FORM LAYOUT
+========================================================= */
+
+form {
+  width: 100%;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+
+  margin-bottom: 15px;
+}
+
+.form-field label {
+  margin-bottom: 5px;
+
+  color: #49413b;
+
+  font-family: "Nunito", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+
+  line-height: 1.2;
+}
+
+.full-width {
+  width: 100%;
+}
+
+/* Two fields on one row */
+
+.form-grid {
+  display: grid;
+
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+
+  gap: 18px;
+
+  margin-bottom: 0;
+}
+
+/* =========================================================
+   INPUTS
+========================================================= */
+
+.form-field input,
+.form-field select {
+  width: 100%;
+  height: 43px;
+
+  padding: 8px 13px;
+
+  border: 1.5px solid #c8c8ba;
+
+  border-radius: 11px;
+
+  outline: none;
+
+  background: rgba(250, 250, 245, 0.82);
+
+  color: #4c4540;
+
+  font-family: "Nunito", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+
+  box-sizing: border-box;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.form-field input::placeholder {
+  color: #8c8982;
+
+  font-weight: 500;
+}
+
+.form-field input:hover,
+.form-field select:hover {
+  border-color: #aebaa8;
+}
+
+.form-field input:focus,
+.form-field select:focus {
+  border-color: #86a890;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 0 0 3px rgba(134, 168, 144, 0.13);
+}
+
+.form-field select {
+  cursor: pointer;
+}
+
+/* =========================================================
+   GRADUATION FIELD
+========================================================= */
+
+.graduation-field {
+  width: calc(50% - 9px);
+
+  margin-top: 0;
+}
+
+/* =========================================================
+   ACTION BUTTONS
+========================================================= */
+
+.onboarding-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 14px;
+
+  margin-top: 18px;
+}
+
+.onboarding-secondary-btn,
+.onboarding-primary-btn {
+  height: 44px;
+
+  padding: 0 24px;
+
+  border-radius: 24px;
+
+  font-family: "Nunito", sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease;
+}
+
+/* Cancel */
+
+.onboarding-secondary-btn {
+  border: 1.5px solid #d3cec0;
+
+  background: #f9f6e9;
+
+  color: #81776c;
+}
+
+.onboarding-secondary-btn:hover {
+  background: #ffffff;
+
+  transform: translateY(-1px);
+}
+
+/* Continue */
+
+.onboarding-primary-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 9px;
+
+  border: none;
+
+  background: #8bb69b;
+
+  color: #ffffff;
+
+  box-shadow: 0 4px 10px rgba(94, 130, 103, 0.15);
+}
+
+.onboarding-primary-btn:hover {
+  background: #7ca88c;
+
+  transform: translateY(-1px);
+
+  box-shadow: 0 6px 14px rgba(94, 130, 103, 0.2);
+}
+
+.onboarding-primary-btn span {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* =========================================================
+   BOTTOM NOTE
+========================================================= */
+
+.onboarding-note {
+  width: calc(100% - 310px);
+
+  margin: 13px 0 0 310px;
+
+  color: #655d56;
+
+  font-family: "Nunito", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+
+  text-align: left;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+  .onboarding-container {
+    width: calc(100% - 45px);
+  }
+
+  .onboarding-progress {
+    position: relative;
+
+    top: auto;
+    left: auto;
+
+    width: 100%;
+
+    flex-direction: row;
+
+    overflow-x: auto;
+
+    margin-bottom: 25px;
+
+    padding-bottom: 5px;
+  }
+
+  .progress-line {
+    display: none;
+  }
+
+  .progress-step {
+    min-width: 110px;
+
+    flex-direction: column;
+
+    align-items: center;
+  }
+
+  .progress-step small {
+    margin-left: 0;
+    margin-top: 7px;
+
+    text-align: center;
+  }
+
+  .academic-card {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .onboarding-note {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 650px) {
+  .onboarding-container {
+    width: calc(100% - 28px);
+
+    padding-top: 20px;
+  }
+
+  .onboarding-header {
+    margin-bottom: 22px;
+  }
+
+  .onboarding-brand {
+    font-size: 27px;
+  }
+
+  .onboarding-back-home {
+    font-size: 12px;
+  }
+
+  .onboarding-intro h1 {
+    font-size: 32px;
+  }
+
+  .onboarding-intro p {
+    font-size: 14px;
+  }
+
+  .academic-card {
+    padding: 22px 18px;
+
+    border-radius: 22px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .graduation-field {
+    width: 100%;
+  }
+
+  .onboarding-actions {
+    justify-content: stretch;
+  }
+
+  .onboarding-secondary-btn,
+  .onboarding-primary-btn {
+    flex: 1;
+  }
+}/* =========================================================
+   STEP 2 — SKILLS
+   Matches the existing Academic onboarding style
+   ========================================================= */
+
+.skills-card {
+  overflow: hidden;
+}
+
+.skills-content {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.skills-section {
+  width: 100%;
+}
+
+.skills-section-heading {
+  margin-bottom: 12px;
+}
+
+.skills-label {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+  color: #294b3d;
+  margin-bottom: 5px;
+}
+
+.skills-helper {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #718078;
+}
+
+
+/* ---------------------------------------------------------
+   Search fields
+   --------------------------------------------------------- */
+
+.skill-search-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.skill-search-input {
+  width: 100%;
+  height: 48px;
+  box-sizing: border-box;
+
+  border: 1px solid #d7e2d9;
+  border-radius: 11px;
+
+  background: #ffffff;
+  color: #294b3d;
+
+  padding: 0 16px 0 42px;
+
+  font-family: inherit;
+  font-size: 14px;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.skill-search-input::placeholder {
+  color: #9aa69f;
+}
+
+.skill-search-input:focus {
+  border-color: #9bb9a2;
+  box-shadow: 0 0 0 3px rgba(155, 185, 162, 0.14);
+}
+
+.skill-search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  color: #718b7b;
+  font-size: 20px;
+
+  pointer-events: none;
+}
+
+
+/* ---------------------------------------------------------
+   Selected skills
+   --------------------------------------------------------- */
+
+.selected-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  margin-top: 12px;
+}
+
+.skill-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  border: 1px solid #bfd3c3;
+  border-radius: 999px;
+
+  background: #edf5ee;
+  color: #365947;
+
+  padding: 8px 12px;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.skill-pill:hover {
+  background: #e4f0e6;
+  border-color: #a9c3ae;
+  transform: translateY(-1px);
+}
+
+.skill-pill span {
+  font-size: 16px;
+  line-height: 1;
+  color: #6b8374;
+}
+
+.learning-skill-pill {
+  background: #f3f0df;
+  border-color: #d9d1aa;
+  color: #655f3d;
+}
+
+
+/* ---------------------------------------------------------
+   Skill choices
+   --------------------------------------------------------- */
+
+.skill-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  margin-top: 12px;
+}
+
+.skill-option {
+  border: 1px solid #d7e2d9;
+  border-radius: 10px;
+
+  background: #fafcf9;
+  color: #4f6358;
+
+  padding: 9px 13px;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.skill-option:hover {
+  border-color: #a9c3ae;
+  background: #f1f7f2;
+  transform: translateY(-1px);
+}
+
+.skill-option-selected {
+  background: #edf5ee;
+  border-color: #9fbaa5;
+  color: #365947;
+}
+
+.skill-option span {
+  margin-right: 5px;
+}
+
+
+/* ---------------------------------------------------------
+   Skill levels
+   --------------------------------------------------------- */
+
+.skill-level-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.skill-level-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  padding: 12px 14px;
+
+  border: 1px solid #e0e8e1;
+  border-radius: 11px;
+
+  background: #fafcf9;
+}
+
+.skill-level-name {
+  min-width: 110px;
+
+  color: #3e574a;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.skill-level-options {
+  display: flex;
+  gap: 6px;
+}
+
+.skill-level-btn {
+  border: 1px solid #d5e0d7;
+  border-radius: 8px;
+
+  background: #ffffff;
+  color: #728077;
+
+  padding: 7px 10px;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.skill-level-btn:hover {
+  border-color: #a8c0ad;
+  color: #476351;
+}
+
+.skill-level-btn-active {
+  background: #dfeee2;
+  border-color: #9fbaa5;
+  color: #315441;
+}
+
+
+/* ---------------------------------------------------------
+   Confidence
+   --------------------------------------------------------- */
+
+.confidence-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.confidence-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-height: 48px;
+
+  border: 1px solid #d7e2d9;
+  border-radius: 11px;
+
+  background: #ffffff;
+  color: #617168;
+
+  padding: 10px 12px;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.confidence-option:hover {
+  border-color: #a9c3ae;
+  background: #f4f8f4;
+  transform: translateY(-1px);
+}
+
+.confidence-option-active {
+  background: #edf5ee;
+  border-color: #9fbaa5;
+  color: #365947;
+}
+
+.confidence-icon {
+  font-size: 17px;
+}
+
+
+/* ---------------------------------------------------------
+   Skills action area
+   --------------------------------------------------------- */
+
+.skills-card .onboarding-actions {
+  margin-top: 30px;
+}
+
+
+/* ---------------------------------------------------------
+   Responsive
+   --------------------------------------------------------- */
+
+@media (max-width: 700px) {
+  .skill-level-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .skill-level-name {
+    min-width: auto;
+  }
+
+  .skill-level-options {
+    width: 100%;
+  }
+
+  .skill-level-btn {
+    flex: 1;
+  }
+
+  .confidence-options {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .skills-content {
+    gap: 22px;
+  }
+
+  .skill-option {
+    font-size: 12px;
+    padding: 8px 10px;
+  }
+
+  .skill-pill {
+    font-size: 12px;
+    padding: 7px 10px;
+  }
+
+  .skill-level-options {
+    flex-wrap: wrap;
+  }
+
+  .skill-level-btn {
+    flex: initial;
+  }
+}
+/* =========================================
+   STEP 4 — PROJECTS & EXPERIENCE
+   ========================================= */
+
+.projects-card {
+  overflow: hidden;
+}
+
+.projects-content {
+  margin-top: 30px;
+}
+
+/* Question */
+
+.project-question {
+  margin-bottom: 30px;
+}
+
+.project-question h3 {
+  margin: 0 0 18px;
+  font-size: 18px;
+  line-height: 1.4;
+  font-weight: 700;
+  color: #315447;
+}
+
+/* Yes / No choices */
+
+.project-choice {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+
+  padding: 16px 18px;
+  margin-bottom: 12px;
+
+  border: 1px solid #d9e4da;
+  border-radius: 16px;
+
+  background: #fbfdf9;
+  color: #315447;
+
+  text-align: left;
+  font-family: inherit;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.project-choice:hover {
+  border-color: #9bb79e;
+  background: #f7fbf5;
+  transform: translateY(-1px);
+}
+
+.project-choice-active {
+  border-color: #78a579;
+  background: #f1f8ef;
+}
+
+/* Radio circle */
+
+.project-radio {
+  width: 19px;
+  height: 19px;
+
+  flex: 0 0 19px;
+
+  margin-top: 2px;
+
+  border: 2px solid #a5b5a8;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-sizing: border-box;
+}
+
+.project-choice-active .project-radio {
+  border-color: #5f8f62;
+}
+
+.project-radio span {
+  width: 9px;
+  height: 9px;
+
+  border-radius: 50%;
+
+  background: #5f8f62;
+}
+
+/* Choice text */
+
+.project-choice-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.project-choice-content strong {
+  font-size: 16px;
+  line-height: 1.4;
+  font-weight: 700;
+  color: #315447;
+}
+
+.project-choice-content small {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #789087;
+}
+
+/* =========================================
+   PROJECT FORM
+   ========================================= */
+
+.project-form {
+  margin-top: 28px;
+}
+
+.project-field {
+  margin-bottom: 22px;
+}
+
+.project-field label {
+  display: block;
+
+  margin-bottom: 9px;
+
+  font-size: 16px;
+  line-height: 1.4;
+  font-weight: 700;
+
+  color: #315447;
+}
+
+.project-field input,
+.project-field textarea {
+  width: 100%;
+  box-sizing: border-box;
+
+  padding: 13px 15px;
+
+  border: 1px solid #d6e2d8;
+  border-radius: 13px;
+
+  background: #ffffff;
+
+  color: #315447;
+  font-family: inherit;
+  font-size: 14px;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.project-field textarea {
+  min-height: 105px;
+  resize: vertical;
+  line-height: 1.55;
+}
+
+.project-field input::placeholder,
+.project-field textarea::placeholder {
+  color: #a2b1a7;
+}
+
+.project-field input:focus,
+.project-field textarea:focus {
+  border-color: #79a47c;
+  background: #ffffff;
+
+  box-shadow: 0 0 0 3px rgba(121, 164, 124, 0.12);
+}
+
+/* =========================================
+   ADD ANOTHER PROJECT
+   ========================================= */
+
+.add-project-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  margin-top: 2px;
+  padding: 10px 15px;
+
+  border: 0;
+  border-radius: 12px;
+
+  background: #edf6eb;
+  color: #4f7b55;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.add-project-btn:hover {
+  background: #e1efdf;
+  transform: translateY(-1px);
+}
+
+.add-project-btn span {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* =========================================
+   EXTRA PROJECTS
+   ========================================= */
+
+.project-form + .project-form {
+  margin-top: 30px;
+  padding-top: 28px;
+
+  border-top: 1px solid #e3ebe4;
+}
+
+/* =========================================
+   MOBILE
+   ========================================= */
+
+@media (max-width: 650px) {
+  .projects-content {
+    margin-top: 24px;
+  }
+
+  .project-question h3 {
+    font-size: 17px;
+  }
+
+  .project-choice {
+    padding: 14px;
+  }
+
+  .project-choice-content strong {
+    font-size: 15px;
+  }
+
+  .project-choice-content small {
+    font-size: 12.5px;
+  }
+
+  .project-field label {
+    font-size: 15px;
+  }
+
+  .project-field input,
+  .project-field textarea {
+    font-size: 14px;
+  }
+}
