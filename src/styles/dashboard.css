@@ -1,0 +1,562 @@
+/* =========================================================
+   OPPURTUNEST — DASHBOARD STYLES
+   Visual language aligned with OppurtuNest storybook aesthetic
+   and the dashboard reference mockup
+========================================================= */
+
+.dashboard-page {
+  min-height: 100vh;
+  width: 100%;
+  background: #edf4e8;
+  color: #38302a;
+  font-family: "Nunito", sans-serif;
+  padding: 0 0 60px;
+  position: relative;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+.dashboard-page *,
+.dashboard-page *::before,
+.dashboard-page *::after {
+  box-sizing: border-box;
+}
+
+.dashboard-inner-container {
+  width: min(1080px, calc(100% - 64px));
+  margin: 0 auto;
+  padding-top: 24px;
+}
+
+/* =========================================================
+   DASHBOARD HEADER
+========================================================= */
+
+.dash-header {
+  margin-bottom: 36px;
+}
+
+.dash-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(113, 155, 125, 0.2);
+  margin-bottom: 24px;
+}
+
+.dash-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.dash-brand-icon {
+  font-size: 24px;
+}
+
+.dash-brand-name {
+  color: #3a6245;
+  font-family: "Fredoka", sans-serif;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+
+.dash-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.dash-text-link {
+  background: transparent;
+  border: none;
+  color: #5d755c;
+  font-family: "Nunito", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.dash-text-link:hover {
+  color: #2e5338;
+  background: rgba(113, 155, 125, 0.12);
+}
+
+.dash-profile-pill-btn {
+  background: #ffffff;
+  border: 1.5px solid #c8d8c3;
+  color: #3b5e43;
+  font-family: "Nunito", sans-serif;
+  font-size: 13.5px;
+  font-weight: 700;
+  padding: 6px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dash-profile-pill-btn:hover {
+  background: #e6f0e3;
+  border-color: #9cb894;
+  transform: translateY(-1px);
+}
+
+/* Intro Greeting Block */
+.dash-intro {
+  margin-bottom: 8px;
+}
+
+.dash-eyebrow {
+  display: inline-block;
+  color: #647a5f;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.dash-title {
+  margin: 0 0 6px;
+  color: #273826;
+  font-family: "Fredoka", sans-serif;
+  font-size: clamp(26px, 3.5vw, 36px);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.dash-lead {
+  margin: 0 0 6px;
+  color: #3f553a;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.dash-subtitle {
+  margin: 0;
+  color: #596b54;
+  font-size: 14.5px;
+  max-width: 680px;
+  line-height: 1.55;
+}
+
+/* =========================================================
+   COMMON SECTION HEADERS
+========================================================= */
+
+.dash-section-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.dash-section-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dash-section-eyebrow {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #557252;
+  text-transform: uppercase;
+}
+
+.dash-section-title {
+  margin: 0;
+  color: #2c3d2a;
+  font-family: "Fredoka", sans-serif;
+  font-size: 23px;
+  font-weight: 600;
+}
+
+.dash-section-caption {
+  margin: 0;
+  color: #657560;
+  font-size: 13.5px;
+}
+
+.dash-personalized-tag {
+  background: #d8ebd4;
+  color: #2c5636;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid #b7dcaf;
+}
+
+/* =========================================================
+   EXPLORE SECTION — 7 COMPACT CATEGORY CARDS
+========================================================= */
+
+.dash-explore-section {
+  margin-bottom: 44px;
+}
+
+/* Balanced 7-card layout with Certifications in the center */
+.dash-categories-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+  max-width: 1060px;
+  margin: 0 auto;
+}
+
+/* Individual Compact Category Card */
+.dash-cat-card {
+  flex: 0 1 calc(33.333% - 12px);
+  min-width: 270px;
+  max-width: 336px;
+  background: #ffffff;
+  border: 1.5px solid #ded5c2;
+  border-radius: 18px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 3px 10px rgba(60, 50, 30, 0.03);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  cursor: pointer;
+  text-align: left;
+}
+
+.dash-cat-card:hover,
+.dash-cat-card:focus-visible {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(60, 50, 30, 0.08);
+  border-color: #9cb894;
+  outline: none;
+}
+
+/* Card Top: Number pill + Category icon */
+.cat-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.cat-card-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ece4d0;
+  border: 1px solid #dbcfb4;
+  border-radius: 8px;
+  padding: 3px 8px;
+}
+
+.cat-tag-number {
+  font-weight: 800;
+  font-size: 12px;
+  color: #3b332b;
+}
+
+.cat-tag-label {
+  font-weight: 700;
+  font-size: 10.5px;
+  color: #3b332b;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.cat-card-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Card Main Content */
+.cat-card-content {
+  margin-bottom: 12px;
+}
+
+.cat-card-title {
+  margin: 0 0 4px;
+  color: #273b27;
+  font-family: "Fredoka", sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.cat-card-desc {
+  margin: 0;
+  color: #556651;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+/* Card Footer */
+.cat-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+  border-top: 1px solid #f0ebe0;
+}
+
+.cat-card-action {
+  background: #8ba888;
+  color: #ffffff;
+  border: none;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-family: "Nunito", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.dash-cat-card:hover .cat-card-action {
+  background: #5f865b;
+  transform: translateX(2px);
+}
+
+.cat-card-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #63775f;
+  background: #edf3e8;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+/* =========================================================
+   RECOMMENDED SECTION & CARDS
+========================================================= */
+
+.dash-recommended-section {
+  margin-bottom: 30px;
+}
+
+.dash-recommended-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  max-width: 1060px;
+  margin: 0 auto;
+}
+
+.recommended-card {
+  background: #ffffff;
+  border: 1.5px solid #ded5c2;
+  border-radius: 18px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 3px 12px rgba(60, 50, 30, 0.03);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.recommended-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(60, 50, 30, 0.08);
+  border-color: #9cb894;
+}
+
+.recommended-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.recommended-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.badge-category {
+  background: #eaf3e6;
+  color: #2b5735;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid #c9dec3;
+}
+
+.badge-workmode {
+  background: #fbf5e6;
+  color: #73592c;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid #eedec0;
+}
+
+.badge-featured {
+  background: #fdf0ea;
+  color: #9e462d;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.recommended-card-body {
+  margin-bottom: 14px;
+}
+
+.recommended-card-title {
+  margin: 0 0 4px;
+  color: #263825;
+  font-family: "Fredoka", sans-serif;
+  font-size: 16.5px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.recommended-card-org {
+  margin: 0 0 10px;
+  color: #60725c;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.recommended-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+  font-size: 12px;
+  color: #677562;
+  font-weight: 600;
+}
+
+.recommended-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.meta-icon {
+  color: #4b7348;
+}
+
+.recommended-card-desc {
+  margin: 0 0 12px;
+  color: #556250;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.recommended-skills-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.recommended-skill-pill {
+  background: #edf3e8;
+  color: #3b5f42;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid #d5e4cf;
+}
+
+.recommended-skill-more {
+  font-size: 11px;
+  color: #7b8875;
+  padding: 2px 4px;
+}
+
+.recommended-card-footer {
+  padding-top: 10px;
+  border-top: 1px solid #f0ebe0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.recommended-apply-btn {
+  background: #6f9a62;
+  color: #ffffff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-family: "Nunito", sans-serif;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.recommended-apply-btn:hover {
+  background: #517746;
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 960px) {
+  .dash-recommended-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dash-cat-card {
+    flex: 0 1 calc(50% - 10px);
+    max-width: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .dashboard-inner-container {
+    width: calc(100% - 32px);
+    padding-top: 16px;
+  }
+
+  .dash-top-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .dash-title {
+    font-size: 24px;
+  }
+
+  .dash-recommended-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dash-cat-card {
+    flex: 0 1 100%;
+    min-width: 100%;
+  }
+
+  .dash-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
