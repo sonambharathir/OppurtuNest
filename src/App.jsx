@@ -5,20 +5,29 @@ import QuickAccessSection from "./components/QuickAccessSection";
 import RecommendedOpportunitiesSection from "./components/RecommendedOpportunitiesSection";
 import InsightsGrowthSection from "./components/InsightsGrowthSection";
 import ProfileOnboarding from "./components/ProfileOnboarding";
+import Dashboard from "./pages/Dashboard";
 import Footer from "./components/Footer";
 import "./App.css";
 
 export default function App() {
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showDashboard, setShowDashboard] = useState(false);
 
   // Show onboarding without changing the homepage
-  if (showOnboarding) {
-    return (
-      <ProfileOnboarding
-        onClose={() => setShowOnboarding(false)}
-      />
-    );
-  }
+ if (showOnboarding) {
+  return (
+    <ProfileOnboarding
+      onClose={() => {
+        setShowOnboarding(false);
+        setShowDashboard(true);
+      }}
+    />
+  );
+}
+
+if (showDashboard) {
+  return <Dashboard />;
+}
 
   return (
     <div className="storybook-app-container">

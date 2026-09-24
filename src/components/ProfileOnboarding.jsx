@@ -465,22 +465,23 @@ export default function ProfileOnboarding({ onClose }) {
   };
 
   const goToNextStep = () => {
-    if (currentStep < 7) {
-      setCurrentStep((previous) => previous + 1);
-      return;
-    }
+  if (currentStep < 7) {
+    setCurrentStep((previous) => previous + 1);
+    return;
+  }
 
-    console.log("Profile data:", formData);
-    alert("Profile saved successfully!");
-  };
+  console.log("Profile data:", formData);
+  alert("Profile saved successfully!");
+  onClose();
+};
 
-  const goToPreviousStep = () => {
-    if (currentStep > 1) {
-      setCurrentStep((previous) => previous - 1);
-    } else {
-      onClose();
-    }
-  };
+const goToPreviousStep = () => {
+  if (currentStep > 1) {
+    setCurrentStep((previous) => previous - 1);
+  } else {
+    onClose();
+  }
+};
 
   // -----------------------------
   // PROGRESS
