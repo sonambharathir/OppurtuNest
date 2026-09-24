@@ -1,4 +1,3 @@
-import React from "react";
 import { VineBranch, GrassTuft } from "./Illustrations";
 
 // Mini Skill Icons for the "Your Skills" pebble node
@@ -29,7 +28,7 @@ const MiniIcons = {
   )
 };
 
-export default function SkillJourneySection() {
+export default function SkillJourneySection({ onSelectStep }) {
   return (
     <section id="journey" className="skill-journey-section">
       {/* Upper Meadow Transition */}
@@ -40,7 +39,13 @@ export default function SkillJourneySection() {
       {/* Horizontal Organic Path with Vine Connections */}
       <div className="journey-path-container">
         {/* Step 1: Your Skills (Pebble with Mini Icons) */}
-        <div className="journey-node node-skills">
+        <button
+          type="button"
+          className="journey-node node-skills"
+          onClick={() => onSelectStep && onSelectStep("skills")}
+          title="Explore Your Skills"
+          aria-label="Navigate to Your Skills"
+        >
           <span className="node-title">Your Skills</span>
           <div className="mini-skills-row">
             <span className="mini-icon-circle bg-mint"><MiniIcons.Briefcase /></span>
@@ -48,7 +53,7 @@ export default function SkillJourneySection() {
             <span className="mini-icon-circle bg-purple"><MiniIcons.Gear /></span>
             <span className="mini-icon-circle bg-amber"><MiniIcons.Target /></span>
           </div>
-        </div>
+        </button>
 
         {/* Vine Branch 1 */}
         <div className="vine-connector">
@@ -56,9 +61,15 @@ export default function SkillJourneySection() {
         </div>
 
         {/* Step 2: Matching */}
-        <div className="journey-node node-matching">
+        <button
+          type="button"
+          className="journey-node node-matching"
+          onClick={() => onSelectStep && onSelectStep("matching")}
+          title="Explore Skill Matching"
+          aria-label="Navigate to Skill Matching"
+        >
           <span className="node-title">Matching</span>
-        </div>
+        </button>
 
         {/* Vine Branch 2 */}
         <div className="vine-connector">
@@ -66,9 +77,15 @@ export default function SkillJourneySection() {
         </div>
 
         {/* Step 3: Skill Gaps */}
-        <div className="journey-node node-gaps">
+        <button
+          type="button"
+          className="journey-node node-gaps"
+          onClick={() => onSelectStep && onSelectStep("gaps")}
+          title="Explore Skill Gaps"
+          aria-label="Navigate to Skill Gaps"
+        >
           <span className="node-title">Skill Gaps</span>
-        </div>
+        </button>
 
         {/* Vine Branch 3 */}
         <div className="vine-connector">
@@ -76,9 +93,15 @@ export default function SkillJourneySection() {
         </div>
 
         {/* Step 4: Growth */}
-        <div className="journey-node node-growth">
+        <button
+          type="button"
+          className="journey-node node-growth"
+          onClick={() => onSelectStep && onSelectStep("growth")}
+          title="Explore Your Growth"
+          aria-label="Navigate to Your Growth"
+        >
           <span className="node-title">Growth</span>
-        </div>
+        </button>
       </div>
 
       {/* Subtle Grass Details */}

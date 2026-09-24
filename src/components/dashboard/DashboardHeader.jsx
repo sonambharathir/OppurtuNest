@@ -1,5 +1,10 @@
 
-export default function DashboardHeader({ profileData, onBackToHome, onEditProfile }) {
+export default function DashboardHeader({
+  profileData,
+  onBackToHome,
+  onEditProfile,
+  onNavigateSkillJourney,
+}) {
   // Use profile information to personalize greeting
   const studentName =
     profileData?.studentName ||
@@ -30,6 +35,16 @@ export default function DashboardHeader({ profileData, onBackToHome, onEditProfi
               onClick={onBackToHome}
             >
               ← Back to Home
+            </button>
+          )}
+
+          {onNavigateSkillJourney && (
+            <button
+              type="button"
+              className="sj-dash-pill-btn"
+              onClick={() => onNavigateSkillJourney("skills")}
+            >
+              🌿 Skill Journey
             </button>
           )}
 
