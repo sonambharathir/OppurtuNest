@@ -8,7 +8,7 @@ import {
   GrassTuft 
 } from "./Illustrations";
 
-export default function HeroSection({ onStartJourney }) {
+export default function HeroSection({ onStartJourney, onOpenDashboard, hasProfile }) {
   const categories = [
     {
       id: "internships",
@@ -97,9 +97,9 @@ export default function HeroSection({ onStartJourney }) {
           <button
             type="button"
             className="btn-coral"
-            onClick={onStartJourney}
+            onClick={hasProfile && onOpenDashboard ? onOpenDashboard : onStartJourney}
           >
-            Start Your Journey <span className="btn-arrow">→</span>
+            {hasProfile ? "Go to Dashboard" : "Start Your Journey"} <span className="btn-arrow">→</span>
           </button>
 
           <a href="#opportunities" className="btn-frosted">

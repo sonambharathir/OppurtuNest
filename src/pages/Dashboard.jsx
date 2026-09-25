@@ -1,6 +1,9 @@
+import { useState } from "react";
 import DashboardHeader from "../components/dashboard/DashboardHeader";
 import OpportunityCategories from "../components/dashboard/OpportunityCategories";
 import RecommendedSection from "../components/dashboard/RecommendedSection";
+import CategoryOpportunitiesModal from "../components/quickAccess/CategoryOpportunitiesModal";
+import { getProfile } from "../utils/profileStorage";
 import "../styles/dashboard.css";
 
 export default function Dashboard({
@@ -9,10 +12,16 @@ export default function Dashboard({
   onEditProfile,
   onNavigateSkillJourney,
 }) {
+  const [selectedCategory, setSelectedCategory] = useState(null);
+
+  // Read stored profile from localStorage if not provided via props
+  const activeProfile = profileData || getProfile();
+
   const handleSelectCategory = (category) => {
-    console.log("Selected category:", category.name);
     if (category.id === "certifications" && onNavigateSkillJourney) {
       onNavigateSkillJourney("skills");
+    } else {
+      setSelectedCategory(category.title);
     }
   };
 
@@ -21,7 +30,7 @@ export default function Dashboard({
       <div className="dashboard-inner-container">
         {/* Personalized Welcome Header */}
         <DashboardHeader
-          profileData={profileData}
+          profileData={activeProfile}
           onBackToHome={onBackToHome}
           onEditProfile={onEditProfile}
           onNavigateSkillJourney={onNavigateSkillJourney}
@@ -32,9 +41,23 @@ export default function Dashboard({
           <OpportunityCategories onSelectCategory={handleSelectCategory} />
 
           {/* Personalized Recommendations Section */}
-          <RecommendedSection profileData={profileData} />
+          <RecommendedSection
+            profileData={activeProfile}
+            onStartOnboarding={onEditProfile}
+          />
         </main>
       </div>
+
+      {/* Category Modal if user clicks on a category in dashboard */}
+      {selectedCategory && (
+        <CategoryOpportunitiesModal
+          isOpen={Boolean(selectedCategory)}
+          category={selectedCategory}
+          onClose={() => setSelectedCategory(null)}
+          userProfile={activeProfile}
+          onOpenResume={onEditProfile}
+        />
+      )}
     </div>
   );
 }

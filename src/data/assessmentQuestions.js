@@ -1062,8 +1062,8 @@ export function calculateAssessmentResults(skillAreaId, userAnswers) {
   // 5 -> Strong
   const snapshot = Object.values(skillScores).map((item) => {
     const totalPoints = item.knowledgeCorrect + item.confidenceScore;
-    let level = "Starting";
-    let levelClass = "level-starting";
+    let level;
+    let levelClass;
 
     if (totalPoints >= 5) {
       level = "Strong";

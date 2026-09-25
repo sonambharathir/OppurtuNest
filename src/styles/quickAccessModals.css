@@ -1,0 +1,761 @@
+/* OppurtuNest — Quick Access Modals Stylesheet (Resume Doctor & Skill Analyzer) */
+
+/* Shared Modal Backdrop */
+.qa-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(25, 40, 30, 0.45);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: qaFadeIn 0.2s ease-out;
+}
+
+@keyframes qaFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes qaPopIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Modal Container */
+.qa-modal-dialog {
+  background: #fdfaf4;
+  border: 2px solid #ded5c2;
+  border-radius: 24px;
+  max-width: 680px;
+  width: 100%;
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 48px rgba(35, 60, 45, 0.22);
+  display: flex;
+  flex-direction: column;
+  animation: qaPopIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+/* Modal Header */
+.qa-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 24px 28px 16px;
+  border-bottom: 1.5px solid #ebe5d5;
+}
+
+.qa-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.qa-header-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: #eaf3e6;
+  border: 1.5px solid #6f9a62;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.qa-modal-title {
+  margin: 0;
+  font-family: "Fredoka", sans-serif;
+  font-size: 22px;
+  color: #273826;
+  line-height: 1.2;
+}
+
+.qa-modal-subtitle {
+  margin: 4px 0 0;
+  font-family: "Nunito", sans-serif;
+  font-size: 13.5px;
+  color: #637560;
+  line-height: 1.4;
+}
+
+.qa-close-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: #7a8a77;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  line-height: 1;
+}
+
+.qa-close-btn:hover {
+  background: #ebe5d5;
+  color: #273826;
+}
+
+/* Modal Body */
+.qa-modal-body {
+  padding: 22px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ========================================================
+   UPLOAD RESUME SECTION STYLES
+   ======================================================== */
+
+/* Drag & Drop Area */
+.qa-dropzone {
+  border: 2px dashed #9cbfa0;
+  background: #f7fbf4;
+  border-radius: 20px;
+  padding: 34px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.qa-dropzone.dragging {
+  border-color: #4b8054;
+  background: #eaf5e7;
+  transform: scale(1.01);
+}
+
+.qa-dropzone:hover {
+  border-color: #63986a;
+  background: #eef6ec;
+}
+
+.qa-dropzone-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1.5px solid #9cbfa0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4a7d52;
+  box-shadow: 0 4px 12px rgba(60, 100, 70, 0.08);
+}
+
+.qa-dropzone-title {
+  margin: 0;
+  font-family: "Fredoka", sans-serif;
+  font-size: 17px;
+  color: #273826;
+}
+
+.qa-browse-link {
+  color: #3b7445;
+  text-decoration: underline;
+  font-weight: 700;
+}
+
+.qa-dropzone-hint {
+  margin: 0;
+  font-size: 12.5px;
+  color: #7b8e78;
+}
+
+.qa-sample-btn-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.qa-sample-btn {
+  background: #ffffff;
+  border: 1.5px solid #ded5c2;
+  border-radius: 999px;
+  padding: 7px 16px;
+  font-family: "Nunito", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #4c6849;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.qa-sample-btn:hover {
+  background: #eaf3e6;
+  border-color: #6f9a62;
+  color: #2b5735;
+}
+
+/* Analyzing Loader */
+.qa-analyzing-box {
+  padding: 40px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.qa-analyzing-spinner {
+  width: 44px;
+  height: 44px;
+  border: 3.5px solid #e1ecde;
+  border-top-color: #4f8257;
+  border-radius: 50%;
+  animation: qaSpin 0.9s linear infinite;
+}
+
+@keyframes qaSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.qa-analyzing-text {
+  font-family: "Fredoka", sans-serif;
+  font-size: 16px;
+  color: #2b5735;
+}
+
+/* Uploaded File Bar */
+.qa-file-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border: 1.5px solid #ded5c2;
+  border-radius: 14px;
+  padding: 12px 18px;
+  gap: 12px;
+}
+
+.qa-file-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.qa-file-doc-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.qa-file-name {
+  font-weight: 700;
+  font-size: 14px;
+  color: #273826;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 320px;
+}
+
+.qa-file-size {
+  font-size: 12px;
+  color: #7b8e78;
+  margin-left: 6px;
+}
+
+.qa-reupload-btn {
+  background: transparent;
+  border: 1px solid #c9dfc7;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #3d6a45;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.qa-reupload-btn:hover {
+  background: #f0f7ee;
+  border-color: #6f9a62;
+}
+
+/* Score Card */
+.qa-score-card {
+  background: linear-gradient(135deg, #eaf5e7 0%, #ffffff 100%);
+  border: 1.5px solid #b7d6b3;
+  border-radius: 18px;
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.qa-score-circle {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: #2f6139;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(47, 97, 57, 0.25);
+  flex-shrink: 0;
+}
+
+.qa-score-number {
+  font-family: "Fredoka", sans-serif;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.qa-score-out-of {
+  font-size: 10px;
+  opacity: 0.85;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.qa-score-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.qa-score-title {
+  margin: 0;
+  font-family: "Fredoka", sans-serif;
+  font-size: 17px;
+  color: #273826;
+}
+
+.qa-score-desc {
+  margin: 0;
+  font-size: 13px;
+  color: #556752;
+  line-height: 1.4;
+}
+
+/* Checklist Section */
+.qa-checklist-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.qa-section-label {
+  margin: 0;
+  font-family: "Fredoka", sans-serif;
+  font-size: 15px;
+  color: #273826;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.qa-check-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #ffffff;
+  border: 1px solid #ebe5d5;
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+
+.qa-check-badge {
+  font-size: 15px;
+  line-height: 1.2;
+}
+
+.qa-check-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.qa-check-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #273826;
+}
+
+.qa-check-note {
+  font-size: 12px;
+  color: #6a7c68;
+}
+
+/* Skills Badges Grid */
+.qa-skills-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.qa-skill-pill {
+  background: #ffffff;
+  border: 1.5px solid #c9dec6;
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #2f6139;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Tips Box */
+.qa-tips-box {
+  background: #fff9ed;
+  border: 1.5px solid #eed9b3;
+  border-radius: 16px;
+  padding: 14px 18px;
+}
+
+.qa-tips-title {
+  margin: 0 0 8px;
+  font-family: "Fredoka", sans-serif;
+  font-size: 14px;
+  color: #8c5b16;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.qa-tips-list {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+  color: #634f31;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ========================================================
+   SKILL ANALYZER MODAL STYLES
+   ======================================================== */
+
+.qa-role-selector-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.qa-role-select {
+  width: 100%;
+  padding: 10px 14px;
+  font-family: "Nunito", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #273826;
+  background: #ffffff;
+  border: 1.5px solid #c8d8c5;
+  border-radius: 12px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.qa-role-select:focus {
+  border-color: #558c69;
+}
+
+/* Role Match Banner */
+.qa-match-banner {
+  background: #ffffff;
+  border: 1.5px solid #ded5c2;
+  border-radius: 18px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.qa-banner-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.qa-banner-title {
+  margin: 0;
+  font-family: "Fredoka", sans-serif;
+  font-size: 18px;
+  color: #273826;
+}
+
+.qa-match-badge {
+  background: #eaf3e6;
+  color: #2b5735;
+  border: 1px solid #72a365;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 800;
+}
+
+/* Progress Bar */
+.qa-match-bar-track {
+  width: 100%;
+  height: 10px;
+  background: #ebe5d5;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.qa-match-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6f9a62 0%, #3e734a 100%);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.qa-banner-summary {
+  margin: 0;
+  font-size: 13px;
+  color: #5d6d59;
+}
+
+/* Two Columns: Skills you have vs Skills to learn */
+.qa-analysis-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.qa-analysis-col {
+  background: #ffffff;
+  border: 1.5px solid #ded5c2;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.qa-col-title {
+  margin: 0;
+  font-family: "Fredoka", sans-serif;
+  font-size: 14.5px;
+  color: #273826;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.qa-skills-sublist {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.qa-mini-skill-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background: #fbf8f1;
+  border: 1px solid #ebe5d5;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #2b5735;
+}
+
+.qa-skill-matched {
+  background: #f1f8ed;
+  border-color: #c9dec6;
+}
+
+.qa-skill-gap-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px;
+  background: #fffcf4;
+  border: 1px solid #ebd9b8;
+  border-radius: 10px;
+}
+
+.qa-gap-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.qa-gap-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #273826;
+}
+
+.qa-gap-tag {
+  font-size: 10.5px;
+  font-weight: 800;
+  background: #faeedb;
+  color: #a06316;
+  padding: 2px 7px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.qa-gap-reason {
+  font-size: 11.5px;
+  color: #6a7465;
+  line-height: 1.35;
+}
+
+/* Recommended Next Steps */
+.qa-next-steps-box {
+  background: #f3f8f1;
+  border: 1.5px solid #c0dcba;
+  border-radius: 16px;
+  padding: 16px 20px;
+}
+
+.qa-next-steps-title {
+  margin: 0 0 10px;
+  font-family: "Fredoka", sans-serif;
+  font-size: 15px;
+  color: #2b5735;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.qa-next-steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.qa-next-step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  color: #3b533d;
+  line-height: 1.4;
+}
+
+.qa-step-num {
+  width: 22px;
+  height: 22px;
+  background: #47774e;
+  color: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* Modal Actions Footer */
+.qa-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 28px 20px;
+  border-top: 1.5px solid #ebe5d5;
+  gap: 12px;
+}
+
+.qa-btn-secondary {
+  background: transparent;
+  border: 1.5px solid #ded5c2;
+  border-radius: 999px;
+  padding: 9px 20px;
+  font-family: "Nunito", sans-serif;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #6a7c68;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.qa-btn-secondary:hover {
+  background: #ebe5d5;
+  color: #273826;
+}
+
+.qa-btn-primary {
+  background: #558c69;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 22px;
+  font-family: "Nunito", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 12px rgba(85, 140, 105, 0.25);
+  transition: all 0.2s ease;
+}
+
+.qa-btn-primary:hover {
+  background: #427253;
+  transform: translateY(-1px);
+}
+
+/* Responsiveness */
+@media (max-width: 640px) {
+  .qa-analysis-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .qa-modal-dialog {
+    max-height: 94vh;
+  }
+
+  .qa-score-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .qa-modal-footer {
+    flex-direction: column-reverse;
+  }
+
+  .qa-btn-primary,
+  .qa-btn-secondary {
+    width: 100%;
+    justify-content: center;
+  }
+}

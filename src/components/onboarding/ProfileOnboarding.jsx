@@ -10,12 +10,13 @@ import Step6Goals from "./Step6Goals";
 import Step7Preferences from "./Step7Preferences";
 import ProfileCompletion from "./ProfileCompletion";
 import { allSkills, initialFormData } from "../../data/onboardingData";
+import { saveProfile, getProfile } from "../../utils/profileStorage";
 import "../ProfileOnboarding.css";
 
 export default function ProfileOnboarding({ onClose, onComplete }) {
   const [currentStep, setCurrentStep] = useState(1);
   const [isCompleted, setIsCompleted] = useState(false);
-  const [formData, setFormData] = useState(initialFormData);
+  const [formData, setFormData] = useState(() => getProfile() || initialFormData);
 
   const [skillSearch, setSkillSearch] = useState("");
   const [learningSearch, setLearningSearch] = useState("");
@@ -222,11 +223,13 @@ export default function ProfileOnboarding({ onClose, onComplete }) {
   };
 
   const handleFinishProfile = () => {
-    // Show in-page completion screen (no browser alert!)
+    // Save to localStorage immediately when finishing step 7!
+    saveProfile(formData);
     setIsCompleted(true);
   };
 
   const handleProceedToDashboard = () => {
+    saveProfile(formData);
     if (onComplete) {
       onComplete(formData);
     } else if (onClose) {

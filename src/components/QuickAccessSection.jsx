@@ -1,4 +1,3 @@
-import React from "react";
 import { BunnyFisher } from "./Illustrations";
 
 // Clean, standard coded vector icons for Quick Access
@@ -19,7 +18,11 @@ const QuickIcons = {
   )
 };
 
-export default function QuickAccessSection() {
+export default function QuickAccessSection({
+  onStartAssessment,
+  onOpenResume,
+  onOpenSkillAnalyzer,
+}) {
   return (
     <section id="quick-access" className="quick-access-section">
       <div className="quick-access-content-grid">
@@ -29,7 +32,19 @@ export default function QuickAccessSection() {
 
           <div className="quick-action-bubbles-row">
             {/* Upload Resume */}
-            <div className="quick-action-item">
+            <div
+              className="quick-action-item"
+              onClick={onOpenResume}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  onOpenResume && onOpenResume();
+                }
+              }}
+              title="Upload your resume to check ATS score and tips"
+            >
               <div className="action-circle-bubble">
                 <QuickIcons.Resume />
               </div>
@@ -37,7 +52,19 @@ export default function QuickAccessSection() {
             </div>
 
             {/* Skill Analyzer */}
-            <div className="quick-action-item">
+            <div
+              className="quick-action-item"
+              onClick={onOpenSkillAnalyzer}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  onOpenSkillAnalyzer && onOpenSkillAnalyzer();
+                }
+              }}
+              title="Analyze your skills against target job roles"
+            >
               <div className="action-circle-bubble">
                 <QuickIcons.SkillAnalyzer />
               </div>
@@ -56,7 +83,11 @@ export default function QuickAccessSection() {
           <div className="assessment-hero-panel">
             <h3 className="assessment-panel-title">Take a Quick Skill Assessment</h3>
             <p className="assessment-panel-desc">Evaluate your current skills and discover tailored opportunities.</p>
-            <button className="btn-coral assessment-btn">
+            <button
+              type="button"
+              className="btn-coral assessment-btn"
+              onClick={onStartAssessment}
+            >
               Take a Quick Assessment <span className="btn-arrow">→</span>
             </button>
           </div>

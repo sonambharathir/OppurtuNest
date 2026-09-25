@@ -1,17 +1,23 @@
-
-export default function RecommendedOpportunityCard({ opportunity }) {
+export default function RecommendedOpportunityCard({ opportunity, onSelectOpportunity }) {
   const {
     title,
     category,
     organization,
+    organizer,
     location,
     workMode,
+    mode,
     duration,
     stipend,
     skills = [],
     description,
     featuredBadge,
+    matchLabel,
   } = opportunity;
+
+  const displayOrg = organization || organizer || "";
+  const displayMode = workMode || mode || "";
+  const displayBadge = matchLabel || featuredBadge;
 
   return (
     <article className="recommended-card">
@@ -19,11 +25,13 @@ export default function RecommendedOpportunityCard({ opportunity }) {
       <div className="recommended-card-top">
         <div className="recommended-badges">
           <span className="badge-category">{category}</span>
-          {workMode && <span className="badge-workmode">{workMode}</span>}
+          {displayMode && <span className="badge-workmode">{displayMode}</span>}
         </div>
 
-        {featuredBadge && (
-          <span className="badge-featured">{featuredBadge}</span>
+        {displayBadge && (
+          <span className="badge-featured" style={{ background: matchLabel ? "#eaf5e7" : "#fdf0ea", color: matchLabel ? "#2b5735" : "#9e462d", border: matchLabel ? "1px solid #b7dab2" : "none", fontWeight: 800 }}>
+            ✦ {displayBadge}
+          </span>
         )}
       </div>
 
@@ -31,7 +39,7 @@ export default function RecommendedOpportunityCard({ opportunity }) {
       <div className="recommended-card-body">
         <h3 className="recommended-card-title">{title}</h3>
         <p className="recommended-card-org">
-          {organization} {location ? `• ${location}` : ""}
+          {displayOrg} {location ? `• ${location}` : ""}
         </p>
 
         {/* Quick Meta Row */}
@@ -73,7 +81,9 @@ export default function RecommendedOpportunityCard({ opportunity }) {
           type="button"
           className="recommended-apply-btn"
           onClick={() => {
-            alert(`Opening opportunity: "${title}" at ${organization}`);
+            if (onSelectOpportunity) {
+              onSelectOpportunity(opportunity);
+            }
           }}
         >
           View Opportunity <span>→</span>

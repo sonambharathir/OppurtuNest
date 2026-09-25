@@ -167,19 +167,19 @@ export default function SkillGrowth({
               </p>
             </div>
 
-            {/* Meaningful Starting State for Assessments */}
+            {/* Interactive Starting State for Assessments */}
             <div className="growth-empty-card">
               <div className="growth-empty-icon">📝</div>
-              <h4 className="growth-empty-title">Skill check-ins coming soon</h4>
+              <h4 className="growth-empty-title">Ready for a low-pressure skill check-in?</h4>
               <p className="growth-empty-text">
-                We're crafting low-pressure, 10-minute conceptual check-ins for React, JavaScript, Python, and Git.
+                Take a 12-question check-in across Web Development, Programming, AI & Data, UI/UX, or Business to evaluate your practical understanding.
               </p>
               <button
                 type="button"
                 className="growth-secondary-btn"
-                onClick={() => alert("You'll be notified as soon as skill check-ins launch! 🌱")}
+                onClick={() => onNavigateTab && onNavigateTab("assessment")}
               >
-                Get Notified When Ready
+                Take a Quick Assessment →
               </button>
             </div>
           </section>

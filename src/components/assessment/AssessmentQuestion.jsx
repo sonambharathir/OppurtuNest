@@ -1,7 +1,6 @@
 export default function AssessmentQuestion({
   question,
   questionIndex,
-  totalQuestions,
   selectedAnswer,
   onSelectAnswer,
   onNext,
