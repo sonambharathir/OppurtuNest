@@ -8,7 +8,7 @@ import {
   GrassTuft 
 } from "./Illustrations";
 
-export default function HeroSection({ onStartJourney, onOpenDashboard, hasProfile }) {
+export default function HeroSection({ onStartJourney, onOpenDashboard, hasProfile, onSelectCategory }) {
   const categories = [
     {
       id: "internships",
@@ -78,7 +78,20 @@ export default function HeroSection({ onStartJourney, onOpenDashboard, hasProfil
             const IconComp = cat.Icon;
 
             return (
-              <div key={cat.id} className={`hero-category-item cat-${cat.id}`}>
+              <div
+                key={cat.id}
+                className={`hero-category-item cat-${cat.id}`}
+                onClick={() => onSelectCategory && onSelectCategory(cat.name)}
+                role="button"
+                tabIndex={0}
+                style={{ cursor: "pointer" }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    if (onSelectCategory) onSelectCategory(cat.name);
+                  }
+                }}
+              >
                 <div className="cat-icon-bubble">
                   <IconComp />
                 </div>

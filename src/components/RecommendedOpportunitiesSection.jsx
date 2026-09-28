@@ -76,7 +76,7 @@ export default function RecommendedOpportunitiesSection({
                   }
                 }}
                 style={{ cursor: "pointer" }}
-                title={`Click to view personalized ${item.title}`}
+                title={`Click to browse ${item.title}`}
               >
                 <h3 className="card-opportunity-title">{item.title}</h3>
                 <p className="card-opportunity-desc">{item.description}</p>
@@ -91,7 +91,7 @@ export default function RecommendedOpportunitiesSection({
                     gap: "4px",
                   }}
                 >
-                  View Personalized →
+                  Explore Opportunities →
                 </span>
               </div>
             ))}
@@ -113,7 +113,7 @@ export default function RecommendedOpportunitiesSection({
                   }
                 }}
                 style={{ cursor: "pointer" }}
-                title={`Click to view personalized ${item.title}`}
+                title={`Click to browse ${item.title}`}
               >
                 <h3 className="card-opportunity-title">{item.title}</h3>
                 <p className="card-opportunity-desc">{item.description}</p>
@@ -128,7 +128,7 @@ export default function RecommendedOpportunitiesSection({
                     gap: "4px",
                   }}
                 >
-                  View Personalized →
+                  Explore Opportunities →
                 </span>
               </div>
             ))}

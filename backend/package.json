@@ -1,0 +1,27 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "import:brabble": "node scripts/importBrabble.js",
+    "import:curated": "node scripts/importCuratedInternships.js",
+    "import:scholarships": "node scripts/importCuratedScholarships.js",
+    "import:competitions": "node scripts/importCuratedCompetitions.js",
+    "import:workshops": "node scripts/importCuratedWorkshops.js",
+    "import:research": "node scripts/importCuratedResearch.js",
+    "import:certifications": "node scripts/importCuratedCertifications.js",
+    "clean:sample": "node scripts/removeSampleOpportunities.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.4",
+    "express": "^5.2.1",
+    "mongoose": "^9.10.2"
+  }
+}

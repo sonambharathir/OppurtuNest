@@ -1,28 +1,19 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import RecommendedOpportunityCard from "./RecommendedOpportunityCard";
 import OpportunityModal from "../skillJourney/OpportunityModal";
-import { mockOpportunities } from "../../data/opportunities";
-import { getPersonalizedRecommendations, checkInterestCoverage } from "../../utils/recommendationUtils";
-import { getProfile } from "../../utils/profileStorage";
+import { getProfile, getStudentId, saveStudentId } from "../../utils/profileStorage";
+import { getRecommendations, createStudent, mapProfileToBackendStudent } from "../../utils/api";
 
 export default function RecommendedSection({ profileData, onStartOnboarding }) {
   const [selectedOpp, setSelectedOpp] = useState(null);
+  const [backendRecommendations, setBackendRecommendations] = useState([]);
+  const [isLoadingBackend, setIsLoadingBackend] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   // Retrieve stored profile from localStorage if not explicitly passed as prop
   const activeProfile = useMemo(() => {
     return profileData || getProfile();
   }, [profileData]);
-
-  // Compute qualitative personalized recommendations based on profile
-  const opportunities = useMemo(() => {
-    return getPersonalizedRecommendations(mockOpportunities, activeProfile, 6);
-  }, [activeProfile]);
-
-  // Check coverage for student's selected interests
-  const interestCoverage = useMemo(() => {
-    const interests = activeProfile?.selectedInterests || activeProfile?.domains || [];
-    return checkInterestCoverage(interests, mockOpportunities);
-  }, [activeProfile]);
 
   const hasPreferences = Boolean(
     activeProfile &&
@@ -33,6 +24,58 @@ export default function RecommendedSection({ profileData, onStartOnboarding }) {
       activeProfile.preferredRoles?.length > 0 ||
       activeProfile.selectedInterests?.length > 0)
   );
+
+  // Fetch recommendations from GET /api/recommendations/:studentId
+  const fetchRecommendations = useCallback(async () => {
+    if (!hasPreferences) {
+      setBackendRecommendations([]);
+      return;
+    }
+
+    setIsLoadingBackend(true);
+    setErrorMessage(null);
+
+    try {
+      let studentId = getStudentId();
+
+      // If student profile exists in storage but not yet registered on backend, sync it
+      if (!studentId && activeProfile) {
+        try {
+          const studentPayload = mapProfileToBackendStudent(activeProfile);
+          const created = await createStudent(studentPayload);
+          if (created && created._id) {
+            studentId = created._id;
+            saveStudentId(studentId);
+          }
+        } catch (syncErr) {
+          console.warn("[RecommendedSection] Could not sync student profile with backend:", syncErr.message);
+        }
+      }
+
+      if (!studentId) {
+        setIsLoadingBackend(false);
+        setBackendRecommendations([]);
+        return;
+      }
+
+      const data = await getRecommendations(studentId, 6);
+      if (Array.isArray(data)) {
+        setBackendRecommendations(data);
+      } else {
+        setBackendRecommendations([]);
+      }
+    } catch (err) {
+      console.error("[RecommendedSection] Error loading recommendations:", err.message);
+      setErrorMessage("Unable to load opportunities right now.");
+      setBackendRecommendations([]);
+    } finally {
+      setIsLoadingBackend(false);
+    }
+  }, [activeProfile, hasPreferences]);
+
+  useEffect(() => {
+    fetchRecommendations();
+  }, [fetchRecommendations]);
 
   return (
     <section className="dash-recommended-section">
@@ -48,34 +91,99 @@ export default function RecommendedSection({ profileData, onStartOnboarding }) {
         )}
       </div>
 
-      {/* Friendly fallback banner if selected interest has no direct sample listings */}
-      {hasPreferences && interestCoverage.hasInterests && !interestCoverage.hasAnyMatch && (
-        <div
-          style={{
-            background: "#faf6ee",
-            border: "1.5px solid #e2d9c8",
-            borderRadius: "14px",
-            padding: "12px 18px",
-            marginBottom: "20px",
-            display: "flex",
-            alignItems: "center",
-            gap: "12px",
-            color: "#5c503e",
-            fontSize: "13.5px",
-            lineHeight: "1.4",
-          }}
-        >
-          <span style={{ fontSize: "20px" }}>🌱</span>
-          <div>
-            <strong>Exploring broader opportunities:</strong> We don&apos;t currently have active sample listings specifically for{" "}
-            <span style={{ color: "#2c3d2a", fontWeight: 700 }}>
-              {interestCoverage.unmatchedInterests.join(", ")}
-            </span>
-            . Showing the top recommendations tailored to your skills, goals, and role preferences below!
-          </div>
+      {/* Loading state */}
+      {hasPreferences && isLoadingBackend && (
+        <div style={{ textAlign: "center", padding: "16px 0 24px", color: "#60725c", fontSize: "13.5px" }}>
+          <span style={{ marginRight: "6px" }}>🌱</span>
+          Curating real recommendations tailored to your profile...
         </div>
       )}
 
+      {/* Error state with Retry action */}
+      {hasPreferences && !isLoadingBackend && errorMessage && (
+        <div
+          style={{
+            background: "#fffaf7",
+            border: "1.5px solid #f2d5cb",
+            borderRadius: "16px",
+            padding: "36px 24px",
+            textAlign: "center",
+            maxWidth: "680px",
+            margin: "0 auto",
+            color: "#8a4537",
+          }}
+        >
+          <div style={{ fontSize: "28px", marginBottom: "8px" }}>⚠️</div>
+          <h3 style={{ fontFamily: "Fredoka, sans-serif", fontSize: "18px", margin: "0 0 6px", color: "#6d3024" }}>
+            Unable to load opportunities right now.
+          </h3>
+          <p style={{ fontSize: "13.5px", color: "#8a4537", margin: "0 0 16px" }}>
+            Could not reach the recommendation server. Please check your connection and try again.
+          </p>
+          <button
+            type="button"
+            onClick={fetchRecommendations}
+            style={{
+              background: "#396645",
+              color: "#ffffff",
+              border: "none",
+              borderRadius: "999px",
+              padding: "9px 24px",
+              fontFamily: "Nunito, sans-serif",
+              fontSize: "13.5px",
+              fontWeight: 700,
+              cursor: "pointer",
+              boxShadow: "0 2px 8px rgba(45, 80, 60, 0.2)",
+            }}
+          >
+            Retry ↻
+          </button>
+        </div>
+      )}
+
+      {/* Empty recommendation state */}
+      {hasPreferences && !isLoadingBackend && !errorMessage && backendRecommendations.length === 0 && (
+        <div
+          style={{
+            background: "#ffffff",
+            border: "1.5px solid #ded5c2",
+            borderRadius: "20px",
+            padding: "40px 30px",
+            textAlign: "center",
+            maxWidth: "680px",
+            margin: "0 auto",
+          }}
+        >
+          <div style={{ fontSize: "32px", marginBottom: "8px" }}>🌱</div>
+          <h3 style={{ fontFamily: "Fredoka, sans-serif", fontSize: "18px", color: "#2c3d2a", margin: "0 0 6px" }}>
+            No opportunities available right now.
+          </h3>
+          <p style={{ color: "#60725c", fontSize: "14px", margin: "0 0 16px" }}>
+            We could not find matching opportunities right now. You can explore all listings using the category cards above.
+          </p>
+          {onStartOnboarding && (
+            <button
+              type="button"
+              onClick={onStartOnboarding}
+              style={{
+                background: "#f7f4ec",
+                color: "#396645",
+                border: "1.5px solid #c9dec3",
+                borderRadius: "999px",
+                padding: "8px 20px",
+                fontWeight: 700,
+                fontSize: "13px",
+                cursor: "pointer",
+                fontFamily: "Nunito, sans-serif",
+              }}
+            >
+              Update Preferences ✎
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Profile onboarding prompt */}
       {!hasPreferences ? (
         <div
           style={{
@@ -119,18 +227,20 @@ export default function RecommendedSection({ profileData, onStartOnboarding }) {
           )}
         </div>
       ) : (
-        <div className="dash-recommended-grid">
-          {opportunities.map((opp) => (
-            <RecommendedOpportunityCard
-              key={opp.id}
-              opportunity={opp}
-              onSelectOpportunity={(item) => setSelectedOpp(item)}
-            />
-          ))}
-        </div>
+        !isLoadingBackend && !errorMessage && backendRecommendations.length > 0 && (
+          <div className="dash-recommended-grid">
+            {backendRecommendations.map((opp) => (
+              <RecommendedOpportunityCard
+                key={opp.id || opp._id}
+                opportunity={opp}
+                onSelectOpportunity={(item) => setSelectedOpp(item)}
+              />
+            ))}
+          </div>
+        )
       )}
 
-      {/* Opportunity Modal */}
+      {/* Universal Opportunity Modal */}
       {selectedOpp && (
         <OpportunityModal
           opportunity={selectedOpp}

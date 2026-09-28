@@ -18,11 +18,8 @@ export default function Dashboard({
   const activeProfile = profileData || getProfile();
 
   const handleSelectCategory = (category) => {
-    if (category.id === "certifications" && onNavigateSkillJourney) {
-      onNavigateSkillJourney("skills");
-    } else {
-      setSelectedCategory(category.title);
-    }
+    const title = typeof category === "string" ? category : category?.title || category?.name;
+    setSelectedCategory(title);
   };
 
   return (

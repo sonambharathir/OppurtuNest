@@ -15,6 +15,7 @@ import SkillAssessment from "./pages/SkillAssessment";
 import Footer from "./components/Footer";
 import ResumeModal from "./components/quickAccess/ResumeModal";
 import SkillAnalyzerModal from "./components/quickAccess/SkillAnalyzerModal";
+import CategoryOpportunitiesModal from "./components/quickAccess/CategoryOpportunitiesModal";
 import { getProfile, saveProfile } from "./utils/profileStorage";
 import "./App.css";
 import "./styles/quickAccessModals.css";
@@ -22,6 +23,7 @@ import "./styles/quickAccessModals.css";
 export default function App() {
   const [showResumeModal, setShowResumeModal] = useState(false);
   const [showSkillAnalyzerModal, setShowSkillAnalyzerModal] = useState(false);
+  const [selectedCategoryModal, setSelectedCategoryModal] = useState(null);
   const [uploadedResume, setUploadedResume] = useState(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
@@ -161,6 +163,7 @@ export default function App() {
         hasProfile={Boolean(userProfile)}
         onStartJourney={() => setShowOnboarding(true)}
         onOpenDashboard={() => setShowDashboard(true)}
+        onSelectCategory={(catName) => setSelectedCategoryModal(catName)}
       />
 
       {/* 2. Scroll Sections: Continuous Landscape Journey */}
@@ -196,6 +199,18 @@ export default function App() {
         {/* Footer */}
         <Footer />
       </div>
+
+      {/* Category Opportunities Modal when browsing from Home */}
+      {selectedCategoryModal && (
+        <CategoryOpportunitiesModal
+          isOpen={Boolean(selectedCategoryModal)}
+          category={selectedCategoryModal}
+          onClose={() => setSelectedCategoryModal(null)}
+          userProfile={userProfile}
+          uploadedResume={uploadedResume}
+          onOpenResume={() => setShowResumeModal(true)}
+        />
+      )}
 
       {/* Quick Access Modals */}
       <ResumeModal

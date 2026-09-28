@@ -10,7 +10,8 @@ import Step6Goals from "./Step6Goals";
 import Step7Preferences from "./Step7Preferences";
 import ProfileCompletion from "./ProfileCompletion";
 import { allSkills, initialFormData } from "../../data/onboardingData";
-import { saveProfile, getProfile } from "../../utils/profileStorage";
+import { saveProfile, getProfile, saveStudentId } from "../../utils/profileStorage";
+import { createStudent, mapProfileToBackendStudent } from "../../utils/api";
 import "../ProfileOnboarding.css";
 
 export default function ProfileOnboarding({ onClose, onComplete }) {
@@ -222,10 +223,25 @@ export default function ProfileOnboarding({ onClose, onComplete }) {
     }
   };
 
-  const handleFinishProfile = () => {
-    // Save to localStorage immediately when finishing step 7!
+  const handleFinishProfile = async () => {
+    // 1. Immediately save to localStorage as safe local copy
     saveProfile(formData);
     setIsCompleted(true);
+
+    // 2. Post to backend in background/async
+    try {
+      const studentPayload = mapProfileToBackendStudent(formData);
+      const savedStudent = await createStudent(studentPayload);
+      if (savedStudent && savedStudent._id) {
+        saveStudentId(savedStudent._id);
+        const updated = { ...formData, _id: savedStudent._id };
+        setFormData(updated);
+        saveProfile(updated);
+      }
+    } catch (err) {
+      // Graceful fallback: do NOT crash or break user flow if backend is offline
+      console.warn("[ProfileOnboarding] Backend sync failed, preserved localStorage copy:", err.message);
+    }
   };
 
   const handleProceedToDashboard = () => {
