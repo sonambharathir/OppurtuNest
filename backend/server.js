@@ -12,6 +12,7 @@ try {
 
 const opportunityRoutes = require("./routes/opportunityRoutes");
 const recommendationRoutes = require("./routes/recommendationRoutes");
+const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.get("/api/test", (req, res) => {
   });
 });
 
+app.use("/api/auth", authRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/opportunities", opportunityRoutes);
 app.use("/api/recommendations", recommendationRoutes);

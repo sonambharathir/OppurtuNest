@@ -11,6 +11,7 @@ export default function Dashboard({
   onBackToHome,
   onEditProfile,
   onNavigateSkillJourney,
+  onLogout,
 }) {
   const [selectedCategory, setSelectedCategory] = useState(null);
 
@@ -31,6 +32,7 @@ export default function Dashboard({
           onBackToHome={onBackToHome}
           onEditProfile={onEditProfile}
           onNavigateSkillJourney={onNavigateSkillJourney}
+          onLogout={onLogout}
         />
 
         <main className="dashboard-main-content">

@@ -12,15 +12,30 @@ const categoryIcons = {
   Certifications: "📜",
 };
 
+function hasValue(val) {
+  if (!val) return false;
+  if (typeof val === "string") {
+    const trimmed = val.trim();
+    return trimmed !== "" && trimmed.toLowerCase() !== "not specified";
+  }
+  return true;
+}
+
 export default function CategoryOpportunitiesModal({
   isOpen,
   category,
   onClose,
 }) {
   const [selectedOpp, setSelectedOpp] = useState(null);
+  const [expandedOppId, setExpandedOppId] = useState(null);
   const [opportunities, setOpportunities] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
+
+  // Reset expanded card when modal opens/closes or category switches
+  useEffect(() => {
+    setExpandedOppId(null);
+  }, [category, isOpen]);
 
   // Close on Escape key
   useEffect(() => {
@@ -88,7 +103,7 @@ export default function CategoryOpportunitiesModal({
               <div>
                 <h2 className="qa-modal-title">{category}</h2>
                 <p className="qa-modal-subtitle">
-                  Browse all active {category.toLowerCase()} opportunities.
+                  Browse all available {category.toLowerCase()} opportunities.
                 </p>
               </div>
             </div>
@@ -121,7 +136,7 @@ export default function CategoryOpportunitiesModal({
               <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "#2d5438", fontWeight: 600 }}>
                 <span>{catIcon}</span>
                 <span>
-                  Showing verified opportunities in <strong>{category}</strong> ({opportunities.length} available)
+                  Showing all listings in <strong>{category}</strong> ({opportunities.length} available)
                 </span>
               </div>
             </div>
@@ -129,7 +144,7 @@ export default function CategoryOpportunitiesModal({
             {/* Loading Indicator */}
             {isLoading && (
               <div style={{ textAlign: "center", padding: "18px 0", color: "#60725c", fontSize: "13.5px" }}>
-                <span>🌱 Loading verified {category.toLowerCase()} from directory...</span>
+                <span>🌱 Loading {category.toLowerCase()} from directory...</span>
               </div>
             )}
 
@@ -190,23 +205,26 @@ export default function CategoryOpportunitiesModal({
                   No opportunities available right now.
                 </h3>
                 <p style={{ fontSize: "13.5px", color: "#60725c", margin: 0 }}>
-                  Check back soon for new verified {category.toLowerCase()} listings.
+                  Check back soon for new {category.toLowerCase()} listings.
                 </p>
               </div>
             )}
 
-            {/* Opportunities List */}
+            {/* Opportunities List - Clean Compact Cards */}
             {!isLoading && !errorMessage && opportunities.length > 0 && (
               <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
                 {opportunities.map((opp) => {
                   const displayOrg = opp.organization || opp.organizer || "";
                   const displayMode = opp.workMode || opp.mode || "";
-                  const displayEligibility = opp.eligibility || opp.eligibilityCriteria || "";
                   const displayDomains = Array.isArray(opp.domains) && opp.domains.length > 0
                     ? opp.domains
                     : opp.domain
                     ? [opp.domain]
                     : [];
+
+                  const oppKey = opp.id || opp._id;
+                  const isExpanded = expandedOppId === oppKey;
+                  const displayEligibility = opp.eligibility || opp.eligibilityCriteria || "";
 
                   const hasValidUrl =
                     Boolean(opp.applicationUrl) &&
@@ -214,19 +232,37 @@ export default function CategoryOpportunitiesModal({
                     opp.applicationUrl.trim() !== "#" &&
                     (opp.applicationUrl.trim().startsWith("http://") || opp.applicationUrl.trim().startsWith("https://"));
 
+                  let displayPrize = "";
+                  if (opp.prize) {
+                    if (typeof opp.prize === "string") displayPrize = opp.prize;
+                    else if (typeof opp.prize === "object") displayPrize = opp.prize.total || opp.prize.first || opp.prize.label || "";
+                  }
+                  const rewardVal = displayPrize || opp.stipend;
+                  const rewardLabel = opp.category === "Hackathons" || opp.category === "Competitions" ? "Prize" : "Stipend";
+
+                  const metaItems = [];
+                  if (hasValue(opp.duration)) metaItems.push({ label: "Duration", value: opp.duration, icon: "⏱" });
+                  if (hasValue(rewardVal)) metaItems.push({ label: rewardLabel, value: rewardVal, icon: opp.category === "Hackathons" || opp.category === "Competitions" ? "🏆" : "✦" });
+                  if (hasValue(opp.fee)) metaItems.push({ label: "Fee", value: opp.fee, icon: "🏷" });
+                  if (hasValue(displayMode)) metaItems.push({ label: "Work Mode", value: displayMode, icon: "📍" });
+                  if (hasValue(opp.location)) metaItems.push({ label: "Location", value: opp.location, icon: "🌐" });
+                  if (hasValue(opp.platform || opp.source)) metaItems.push({ label: "Platform", value: opp.platform || opp.source, icon: "🔗" });
+
                   return (
                     <div
-                      key={opp.id || opp._id}
+                      key={oppKey}
                       style={{
                         background: "#ffffff",
-                        border: "1.5px solid #ded5c2",
+                        border: isExpanded ? "1.5px solid #2d5a37" : "1.5px solid #ded5c2",
                         borderRadius: "16px",
                         padding: "16px 18px",
                         display: "flex",
                         flexDirection: "column",
                         gap: "8px",
-                        boxShadow: "0 3px 10px rgba(45, 80, 60, 0.04)",
-                        transition: "transform 0.15s ease",
+                        boxShadow: isExpanded
+                          ? "0 6px 20px rgba(45, 80, 60, 0.08)"
+                          : "0 3px 10px rgba(45, 80, 60, 0.04)",
+                        transition: "all 0.2s ease",
                       }}
                     >
                       {/* Card Header: Category pill + Work Mode + Domain + Deadline */}
@@ -235,7 +271,7 @@ export default function CategoryOpportunitiesModal({
                           <span style={{ background: "#eaf3e6", color: "#2b5735", fontSize: "11px", fontWeight: 700, padding: "2px 8px", borderRadius: "999px", border: "1px solid #c9dec3" }}>
                             {opp.category}
                           </span>
-                          {displayMode && (
+                          {hasValue(displayMode) && (
                             <span style={{ background: "#fbf5e6", color: "#73592c", fontSize: "11px", fontWeight: 700, padding: "2px 8px", borderRadius: "999px" }}>
                               {displayMode}
                             </span>
@@ -247,7 +283,7 @@ export default function CategoryOpportunitiesModal({
                           )}
                         </div>
 
-                        {opp.deadline && (
+                        {hasValue(opp.deadline) && (
                           <span
                             style={{
                               fontSize: "11.5px",
@@ -259,7 +295,7 @@ export default function CategoryOpportunitiesModal({
                               border: "1px solid #ebd9b7",
                             }}
                           >
-                            📅 {opp.deadline}
+                            📅 Deadline: {opp.deadline}
                           </span>
                         )}
                       </div>
@@ -271,52 +307,15 @@ export default function CategoryOpportunitiesModal({
                         </h3>
                         {displayOrg && (
                           <p style={{ margin: 0, fontSize: "13px", color: "#557262", fontWeight: 600 }}>
-                            {displayOrg} {opp.location ? `• ${opp.location}` : ""}
+                            {displayOrg} {hasValue(opp.location) ? `• ${opp.location}` : ""}
                           </p>
                         )}
                       </div>
 
-                      {/* Short Description */}
-                      {opp.description && (
-                        <p style={{ margin: "2px 0 0", fontSize: "13.5px", color: "#506253", lineHeight: "1.45" }}>
-                          {opp.description}
-                        </p>
-                      )}
-
-                      {/* Quick Meta: Duration, Stipend, Fee */}
-                      {(opp.duration || opp.stipend || opp.fee) && (
-                        <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", fontSize: "12px", color: "#617367", fontWeight: 600 }}>
-                          {opp.duration && <span>⏱ {opp.duration}</span>}
-                          {opp.stipend && <span>✦ {opp.stipend}</span>}
-                          {opp.fee && <span>🏷 {opp.fee}</span>}
-                        </div>
-                      )}
-
-                      {/* Eligibility Box */}
-                      {displayEligibility && (
-                        <div
-                          style={{
-                            background: "#f6faf3",
-                            border: "1px solid #cce5c7",
-                            borderRadius: "8px",
-                            padding: "6px 10px",
-                            fontSize: "12px",
-                            color: "#2e5938",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "6px",
-                            fontWeight: 600,
-                          }}
-                        >
-                          <span>📋</span>
-                          <span>Eligibility: {displayEligibility}</span>
-                        </div>
-                      )}
-
-                      {/* Skills List */}
+                      {/* Compact Skills List (top 4 skills) */}
                       {Array.isArray(opp.skills) && opp.skills.length > 0 && (
                         <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "2px" }}>
-                          {opp.skills.slice(0, 5).map((sk) => (
+                          {opp.skills.slice(0, 4).map((sk) => (
                             <span
                               key={sk}
                               style={{
@@ -335,7 +334,7 @@ export default function CategoryOpportunitiesModal({
                         </div>
                       )}
 
-                      {/* Action Row */}
+                      {/* Action Row: Apply Now & View Details / Hide Details */}
                       <div
                         style={{
                           display: "flex",
@@ -365,6 +364,7 @@ export default function CategoryOpportunitiesModal({
                               display: "inline-flex",
                               alignItems: "center",
                               gap: "4px",
+                              transition: "all 0.15s ease",
                             }}
                           >
                             Apply Now ↗
@@ -373,23 +373,257 @@ export default function CategoryOpportunitiesModal({
 
                         <button
                           type="button"
-                          onClick={() => setSelectedOpp(opp)}
+                          onClick={() => setExpandedOppId(isExpanded ? null : oppKey)}
                           style={{
-                            background: "#396645",
-                            color: "#ffffff",
-                            border: "none",
+                            background: isExpanded ? "#f4eee4" : "#396645",
+                            color: isExpanded ? "#475949" : "#ffffff",
+                            border: isExpanded ? "1.5px solid #ded5c2" : "none",
                             borderRadius: "999px",
                             padding: "7px 16px",
                             fontFamily: "Nunito, sans-serif",
                             fontSize: "12.5px",
                             fontWeight: 700,
                             cursor: "pointer",
-                            boxShadow: "0 2px 8px rgba(45, 80, 60, 0.15)",
+                            boxShadow: isExpanded ? "none" : "0 2px 8px rgba(45, 80, 60, 0.15)",
+                            transition: "all 0.15s ease",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "5px",
                           }}
                         >
-                          View Details →
+                          {isExpanded ? "Hide Details ▲" : "View Details ▼"}
                         </button>
                       </div>
+
+                      {/* Expandable Details Section Right Below the Card */}
+                      {isExpanded && (
+                        <div
+                          style={{
+                            marginTop: "8px",
+                            paddingTop: "14px",
+                            borderTop: "1.5px dashed #dcd3bf",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "12px",
+                            background: "#faf8f2",
+                            borderRadius: "12px",
+                            padding: "16px",
+                            animation: "fadeIn 0.2s ease-in-out",
+                          }}
+                        >
+                          {/* Key Meta Badges Grid */}
+                          {metaItems.length > 0 && (
+                            <div
+                              style={{
+                                display: "grid",
+                                gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
+                                gap: "8px",
+                              }}
+                            >
+                              {metaItems.map((item) => (
+                                <div
+                                  key={item.label}
+                                  style={{
+                                    background: "#ffffff",
+                                    border: "1px solid #e5dcce",
+                                    borderRadius: "8px",
+                                    padding: "8px 12px",
+                                  }}
+                                >
+                                  <div style={{ fontSize: "11px", color: "#7a8a77", fontWeight: 700, textTransform: "uppercase" }}>
+                                    {item.icon} {item.label}
+                                  </div>
+                                  <div style={{ fontSize: "12.5px", color: "#223f35", fontWeight: 700, marginTop: "2px" }}>
+                                    {item.value}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Description / About */}
+                          {hasValue(opp.description) && (
+                            <div>
+                              <h4 style={{ margin: "0 0 4px", fontSize: "12.5px", fontWeight: 800, color: "#2d4d38", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                                About this opportunity
+                              </h4>
+                              <p style={{ margin: 0, fontSize: "13.5px", color: "#475949", lineHeight: "1.55" }}>
+                                {opp.description}
+                              </p>
+                            </div>
+                          )}
+
+                          {/* Key Responsibilities */}
+                          {Array.isArray(opp.responsibilities) && opp.responsibilities.length > 0 && (
+                            <div>
+                              <h4 style={{ margin: "0 0 6px", fontSize: "12.5px", fontWeight: 800, color: "#2d4d38", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                                Key Responsibilities
+                              </h4>
+                              <ul style={{ margin: 0, paddingLeft: "18px", fontSize: "13px", color: "#475949", lineHeight: "1.5" }}>
+                                {opp.responsibilities.map((resp, i) => (
+                                  <li key={i} style={{ marginBottom: "3px" }}>{resp}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+
+                          {/* Eligibility */}
+                          {hasValue(displayEligibility) && (
+                            <div
+                              style={{
+                                background: "#edf5ea",
+                                border: "1px solid #c3dec0",
+                                borderRadius: "10px",
+                                padding: "10px 14px",
+                              }}
+                            >
+                              <span style={{ fontSize: "12px", fontWeight: 800, color: "#265430", display: "block", marginBottom: "2px" }}>
+                                📋 Eligibility Criteria:
+                              </span>
+                              <span style={{ fontSize: "13px", color: "#2d5736", lineHeight: "1.45" }}>
+                                {displayEligibility}
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Full Skills Required */}
+                          {Array.isArray(opp.skills) && opp.skills.length > 0 && (
+                            <div>
+                              <h4 style={{ margin: "0 0 6px", fontSize: "12px", fontWeight: 800, color: "#2d4d38", textTransform: "uppercase" }}>
+                                Skills Required
+                              </h4>
+                              <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                                {opp.skills.map((sk) => (
+                                  <span
+                                    key={sk}
+                                    style={{
+                                      fontSize: "11.5px",
+                                      fontWeight: 700,
+                                      padding: "3px 8px",
+                                      borderRadius: "6px",
+                                      background: "#ffffff",
+                                      color: "#396645",
+                                      border: "1px solid #c9dec3",
+                                    }}
+                                  >
+                                    {sk}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Domains and Roles */}
+                          {(displayDomains.length > 0 || (Array.isArray(opp.roles) && opp.roles.length > 0)) && (
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
+                              {displayDomains.length > 0 && (
+                                <div>
+                                  <span style={{ fontSize: "11px", fontWeight: 800, color: "#6a7c68", display: "block", marginBottom: "4px" }}>
+                                    DOMAINS
+                                  </span>
+                                  <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                                    {displayDomains.map((dom) => (
+                                      <span
+                                        key={dom}
+                                        style={{
+                                          fontSize: "11px",
+                                          fontWeight: 700,
+                                          padding: "2px 8px",
+                                          borderRadius: "6px",
+                                          background: "#edf3f8",
+                                          color: "#294d6c",
+                                          border: "1px solid #c8d9e6",
+                                        }}
+                                      >
+                                        ✦ {dom}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {Array.isArray(opp.roles) && opp.roles.length > 0 && (
+                                <div>
+                                  <span style={{ fontSize: "11px", fontWeight: 800, color: "#6a7c68", display: "block", marginBottom: "4px" }}>
+                                    ROLES
+                                  </span>
+                                  <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                                    {opp.roles.map((r) => (
+                                      <span
+                                        key={r}
+                                        style={{
+                                          fontSize: "11px",
+                                          fontWeight: 700,
+                                          padding: "2px 8px",
+                                          borderRadius: "6px",
+                                          background: "#fbf3e6",
+                                          color: "#745422",
+                                          border: "1px solid #e7d5b8",
+                                        }}
+                                      >
+                                        👤 {r}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Bottom Actions inside expanded section */}
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              marginTop: "6px",
+                              paddingTop: "10px",
+                              borderTop: "1px solid #ebd9b7",
+                              flexWrap: "wrap",
+                              gap: "8px",
+                            }}
+                          >
+                            <button
+                              type="button"
+                              onClick={() => setExpandedOppId(null)}
+                              style={{
+                                background: "#ffffff",
+                                color: "#6b7d69",
+                                border: "1px solid #c6d6c3",
+                                borderRadius: "999px",
+                                padding: "6px 14px",
+                                fontFamily: "Nunito, sans-serif",
+                                fontSize: "12px",
+                                fontWeight: 700,
+                                cursor: "pointer",
+                              }}
+                            >
+                              ▲ Hide Details
+                            </button>
+
+                            {hasValidUrl && (
+                              <button
+                                type="button"
+                                onClick={() => window.open(opp.applicationUrl.trim(), "_blank", "noopener,noreferrer")}
+                                style={{
+                                  background: "#396645",
+                                  color: "#ffffff",
+                                  border: "none",
+                                  borderRadius: "999px",
+                                  padding: "7px 18px",
+                                  fontFamily: "Nunito, sans-serif",
+                                  fontSize: "12.5px",
+                                  fontWeight: 700,
+                                  cursor: "pointer",
+                                  boxShadow: "0 2px 8px rgba(45, 80, 60, 0.2)",
+                                }}
+                              >
+                                Apply on Official Website ↗
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -410,7 +644,7 @@ export default function CategoryOpportunitiesModal({
         </div>
       </div>
 
-      {/* Nested Universal Opportunity Details Modal */}
+      {/* Universal Opportunity Details Modal - Displays All Detailed Fields */}
       {selectedOpp && (
         <OpportunityModal
           opportunity={selectedOpp}

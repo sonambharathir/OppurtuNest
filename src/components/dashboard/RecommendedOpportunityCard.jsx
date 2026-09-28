@@ -19,17 +19,30 @@ export default function RecommendedOpportunityCard({ opportunity, onSelectOpport
   const displayMode = workMode || mode || "";
   const displayBadge = matchLabel || featuredBadge;
 
+  const isShortDuration = duration && duration !== "Not specified" && duration.length < 35;
+  const isShortStipend = stipend && stipend !== "Not specified" && stipend.length < 35;
+
   return (
     <article className="recommended-card">
       {/* Top Badges */}
       <div className="recommended-card-top">
         <div className="recommended-badges">
           <span className="badge-category">{category}</span>
-          {displayMode && <span className="badge-workmode">{displayMode}</span>}
+          {displayMode && displayMode !== "Not specified" && (
+            <span className="badge-workmode">{displayMode}</span>
+          )}
         </div>
 
         {displayBadge && (
-          <span className="badge-featured" style={{ background: matchLabel ? "#eaf5e7" : "#fdf0ea", color: matchLabel ? "#2b5735" : "#9e462d", border: matchLabel ? "1px solid #b7dab2" : "none", fontWeight: 800 }}>
+          <span
+            className="badge-featured"
+            style={{
+              background: matchLabel ? "#eaf5e7" : "#fdf0ea",
+              color: matchLabel ? "#2b5735" : "#9e462d",
+              border: matchLabel ? "1px solid #b7dab2" : "none",
+              fontWeight: 800,
+            }}
+          >
             ✦ {displayBadge}
           </span>
         )}
@@ -39,24 +52,39 @@ export default function RecommendedOpportunityCard({ opportunity, onSelectOpport
       <div className="recommended-card-body">
         <h3 className="recommended-card-title">{title}</h3>
         <p className="recommended-card-org">
-          {displayOrg} {location ? `• ${location}` : ""}
+          {displayOrg} {location && location !== "Not specified" ? `• ${location}` : ""}
         </p>
 
-        {/* Quick Meta Row */}
-        <div className="recommended-meta-row">
-          {duration && (
-            <span className="recommended-meta-item">
-              <span className="meta-icon">⏱</span> {duration}
-            </span>
-          )}
-          {stipend && (
-            <span className="recommended-meta-item">
-              <span className="meta-icon">✦</span> {stipend}
-            </span>
-          )}
-        </div>
+        {/* Quick Meta Row - only for short values */}
+        {(isShortDuration || isShortStipend) && (
+          <div className="recommended-meta-row">
+            {isShortDuration && (
+              <span className="recommended-meta-item">
+                <span className="meta-icon">⏱</span> {duration}
+              </span>
+            )}
+            {isShortStipend && (
+              <span className="recommended-meta-item">
+                <span className="meta-icon">✦</span> {stipend}
+              </span>
+            )}
+          </div>
+        )}
 
-        <p className="recommended-card-desc">{description}</p>
+        {description && (
+          <p
+            className="recommended-card-desc"
+            style={{
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {description}
+          </p>
+        )}
 
         {/* Skill tags */}
         {skills && skills.length > 0 && (

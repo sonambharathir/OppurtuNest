@@ -4,6 +4,7 @@ export default function DashboardHeader({
   onBackToHome,
   onEditProfile,
   onNavigateSkillJourney,
+  onLogout,
 }) {
   // Use profile information to personalize greeting
   const studentName =
@@ -55,6 +56,28 @@ export default function DashboardHeader({
               onClick={onEditProfile}
             >
               My Profile
+            </button>
+          )}
+
+          {onLogout && (
+            <button
+              type="button"
+              className="dash-logout-btn"
+              onClick={onLogout}
+              title="Log out and clear session data"
+              style={{
+                background: "#ffffff",
+                color: "#a04332",
+                border: "1.5px solid #eec0b6",
+                borderRadius: "999px",
+                padding: "6px 14px",
+                fontSize: "12.5px",
+                fontWeight: 700,
+                cursor: "pointer",
+                transition: "all 0.15s ease",
+              }}
+            >
+              🚪 Log Out
             </button>
           )}
         </div>

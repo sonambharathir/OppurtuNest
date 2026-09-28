@@ -2,12 +2,25 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { getProfile } from "../utils/profileStorage";
 
-export default function Profile({ profileData, onNavigateHome, onEditProfile }) {
+export default function Profile({
+  profileData,
+  currentUser,
+  onNavigateHome,
+  onEditProfile,
+  onLogout,
+  onOpenLogin,
+}) {
   const profile = profileData || getProfile();
 
   return (
     <div className="storybook-app-container">
-      <Navbar />
+      <Navbar
+        currentUser={currentUser}
+        onOpenLogin={onOpenLogin}
+        onLogout={onLogout}
+        onOpenProfile={() => {}}
+        onOpenDashboard={onNavigateHome}
+      />
       <main style={{ padding: "100px 24px 60px", maxWidth: "1080px", margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: "36px" }}>
           <span style={{ fontSize: "12px", fontWeight: 800, color: "#557252", letterSpacing: "0.1em", textTransform: "uppercase" }}>
@@ -144,7 +157,7 @@ export default function Profile({ profileData, onNavigateHome, onEditProfile }) 
             )}
 
             {/* Action Buttons */}
-            <div style={{ display: "flex", gap: "12px", marginTop: "24px", borderTop: "1px solid #ebe5d5", paddingTop: "18px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginTop: "24px", borderTop: "1px solid #ebe5d5", paddingTop: "18px", flexWrap: "wrap" }}>
               {onEditProfile && (
                 <button
                   type="button"
@@ -161,6 +174,27 @@ export default function Profile({ profileData, onNavigateHome, onEditProfile }) 
                   onClick={onNavigateHome}
                 >
                   ← Back to Home
+                </button>
+              )}
+              {onLogout && (
+                <button
+                  type="button"
+                  onClick={onLogout}
+                  title="Log out and clear session data"
+                  style={{
+                    background: "#ffffff",
+                    color: "#a04332",
+                    border: "1.5px solid #eec0b6",
+                    borderRadius: "999px",
+                    padding: "8px 18px",
+                    fontSize: "13px",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    marginLeft: "auto",
+                    transition: "all 0.15s ease",
+                  }}
+                >
+                  🚪 Log Out
                 </button>
               )}
             </div>

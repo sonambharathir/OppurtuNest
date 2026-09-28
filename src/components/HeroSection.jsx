@@ -8,7 +8,16 @@ import {
   GrassTuft 
 } from "./Illustrations";
 
-export default function HeroSection({ onStartJourney, onOpenDashboard, hasProfile, onSelectCategory }) {
+export default function HeroSection({
+  onStartJourney,
+  onOpenDashboard,
+  hasProfile,
+  onSelectCategory,
+  currentUser,
+  onOpenLogin,
+  onLogout,
+  onOpenProfile,
+}) {
   const categories = [
     {
       id: "internships",
@@ -57,7 +66,13 @@ export default function HeroSection({ onStartJourney, onOpenDashboard, hasProfil
   return (
     <section id="home" className="hero-viewport">
       {/* Top Navbar */}
-      <Navbar />
+      <Navbar
+        currentUser={currentUser}
+        onOpenLogin={onOpenLogin}
+        onLogout={onLogout}
+        onOpenProfile={onOpenProfile}
+        onOpenDashboard={onOpenDashboard}
+      />
 
       {/* Hero Main Content (The Primary Focus) */}
       <div className="hero-main-container">

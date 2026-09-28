@@ -94,6 +94,10 @@ const opportunitySchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    responsibilities: {
+      type: [String],
+      default: [],
+    },
     applicationUrl: {
       type: String,
       default: "#",

@@ -1,6 +1,15 @@
 import { useEffect, useState } from "react";
 import { getOpportunityById } from "../../utils/api";
 
+function hasValue(val) {
+  if (!val) return false;
+  if (typeof val === "string") {
+    const trimmed = val.trim();
+    return trimmed !== "" && trimmed.toLowerCase() !== "not specified";
+  }
+  return true;
+}
+
 export default function OpportunityModal({ opportunity, isOpen, onClose }) {
   const [detailedOpp, setDetailedOpp] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -30,7 +39,7 @@ export default function OpportunityModal({ opportunity, isOpen, onClose }) {
       getOpportunityById(oppId)
         .then((data) => {
           if (isMounted && data) {
-            // Merge recommendation-specific metadata (matchLabel, matchedSkills) if present on initial opportunity
+            // Merge recommendation-specific metadata if present
             setDetailedOpp({
               ...opportunity,
               ...data,
@@ -80,6 +89,7 @@ export default function OpportunityModal({ opportunity, isOpen, onClose }) {
     eligibility,
     eligibilityCriteria,
     description,
+    responsibilities = [],
     skills = [],
     domains = [],
     domain,
@@ -129,33 +139,33 @@ export default function OpportunityModal({ opportunity, isOpen, onClose }) {
     }
   };
 
-  // Build meta items, strictly displaying fields that contain data
+  // Build meta items strictly for fields that contain authentic values (ignoring "Not specified")
   const metaCards = [];
-  if (displayMode) {
+  if (hasValue(displayMode)) {
     metaCards.push({ key: "Work Mode", val: displayMode });
   }
-  if (location) {
+  if (hasValue(location)) {
     metaCards.push({ key: "Location", val: location });
   }
-  if (deadline) {
+  if (hasValue(deadline)) {
     metaCards.push({ key: "Deadline", val: deadline });
   }
-  if (duration) {
+  if (hasValue(duration)) {
     metaCards.push({ key: "Duration", val: duration });
   }
-  if (stipend) {
+  if (hasValue(stipend)) {
     metaCards.push({ key: "Stipend", val: stipend });
   }
-  if (fee) {
+  if (hasValue(fee)) {
     metaCards.push({ key: "Fee", val: fee });
   }
-  if (displayPrize) {
+  if (hasValue(displayPrize)) {
     metaCards.push({ key: "Prize", val: displayPrize });
   }
-  if (platform) {
+  if (hasValue(platform)) {
     metaCards.push({ key: "Platform", val: platform });
   }
-  if (source && source !== platform) {
+  if (hasValue(source) && source !== platform) {
     metaCards.push({ key: "Source", val: source });
   }
 
@@ -174,13 +184,13 @@ export default function OpportunityModal({ opportunity, isOpen, onClose }) {
         <div className="modal-header">
           <div className="opp-modal-top-tags">
             {category && <span className="matching-cat-pill">{category}</span>}
-            {displayMode && <span className="matching-cat-pill">{displayMode}</span>}
+            {hasValue(displayMode) && <span className="matching-cat-pill">{displayMode}</span>}
             {matchLabel && (
               <span className={`match-quality-badge badge-${matchBadgeColor}`}>
                 ✦ {matchLabel}
               </span>
             )}
-            {deadline && (
+            {hasValue(deadline) && (
               <span
                 style={{
                   fontSize: "11px",
@@ -216,13 +226,13 @@ export default function OpportunityModal({ opportunity, isOpen, onClose }) {
           )}
 
           <h2 className="opp-modal-title">{title}</h2>
-          {(displayOrg || location) && (
+          {(displayOrg || hasValue(location)) && (
             <p className="opp-modal-org">
-              {displayOrg} {location ? `• ${location}` : ""}
+              {displayOrg} {hasValue(location) ? `• ${location}` : ""}
             </p>
           )}
 
-          {/* Meta Grid: Render only fields with data */}
+          {/* Meta Grid: Render only fields that actually have values */}
           {metaCards.length > 0 && (
             <div className="opp-modal-meta-grid">
               {metaCards.map((item) => (
@@ -234,16 +244,38 @@ export default function OpportunityModal({ opportunity, isOpen, onClose }) {
             </div>
           )}
 
-          {/* About Section */}
-          {description && (
+          {/* About / Description Section */}
+          {hasValue(description) && (
             <div className="opp-modal-section">
               <h4 className="opp-section-heading">About This Opportunity</h4>
               <p className="opp-section-text">{description}</p>
             </div>
           )}
 
+          {/* Responsibilities Section */}
+          {Array.isArray(responsibilities) && responsibilities.length > 0 && (
+            <div className="opp-modal-section">
+              <h4 className="opp-section-heading">Key Responsibilities</h4>
+              <ul
+                style={{
+                  margin: "6px 0 0",
+                  paddingLeft: "20px",
+                  color: "#465943",
+                  fontSize: "13.5px",
+                  lineHeight: "1.6",
+                }}
+              >
+                {responsibilities.map((resp, idx) => (
+                  <li key={idx} style={{ marginBottom: "5px" }}>
+                    {resp}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           {/* Eligibility Section */}
-          {displayEligibility && (
+          {hasValue(displayEligibility) && (
             <div className="opp-modal-section">
               <h4 className="opp-section-heading">Eligibility Criteria</h4>
               <div
@@ -291,7 +323,7 @@ export default function OpportunityModal({ opportunity, isOpen, onClose }) {
             </div>
           )}
 
-          {/* General Skills */}
+          {/* Required Skills */}
           {skills && skills.length > 0 && (
             <div className="opp-modal-section">
               <h4 className="opp-section-heading">Required & Relevant Skills</h4>

@@ -111,3 +111,124 @@ export function hasProfile() {
       profile.opportunityTypes?.length > 0)
   );
 }
+
+// ----------------------------------------------------
+// Multi-User Authentication & Vault Management
+// ----------------------------------------------------
+
+export const AUTH_USER_KEY = "oppurtunest_auth_user";
+export const USERS_VAULT_KEY = "oppurtunest_users_vault";
+
+/**
+ * Saves current authenticated user session
+ */
+export function saveCurrentUser(user) {
+  if (!user) return;
+  try {
+    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
+  } catch (e) {
+    console.error("[profileStorage] Failed to save current user:", e);
+  }
+}
+
+/**
+ * Retrieves current authenticated user session
+ */
+export function getCurrentUser() {
+  try {
+    const raw = localStorage.getItem(AUTH_USER_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+/**
+ * Clears current authenticated user session
+ */
+export function clearCurrentUser() {
+  try {
+    localStorage.removeItem(AUTH_USER_KEY);
+  } catch (e) {
+    console.error("[profileStorage] Failed to clear current user:", e);
+  }
+}
+
+/**
+ * Saves a user's full account (credentials + profile) into the local accounts vault
+ */
+export function saveUserToVault(account) {
+  if (!account || !account.email) return;
+  try {
+    const rawVault = localStorage.getItem(USERS_VAULT_KEY);
+    const vault = rawVault ? JSON.parse(rawVault) : {};
+    const key = account.email.trim().toLowerCase();
+    vault[key] = {
+      ...account,
+      email: key,
+      updatedAt: new Date().toISOString(),
+    };
+    localStorage.setItem(USERS_VAULT_KEY, JSON.stringify(vault));
+  } catch (e) {
+    console.error("[profileStorage] Failed to update user vault:", e);
+  }
+}
+
+/**
+ * Retrieves a user's account from the local accounts vault
+ */
+export function getUserFromVault(email) {
+  if (!email) return null;
+  try {
+    const rawVault = localStorage.getItem(USERS_VAULT_KEY);
+    const vault = rawVault ? JSON.parse(rawVault) : {};
+    const key = email.trim().toLowerCase();
+    return vault[key] || null;
+  } catch (e) {
+    return null;
+  }
+}
+
+/**
+ * Maps a backend student record or raw user account to the frontend userProfile structure
+ */
+export function mapStudentToProfile(student) {
+  if (!student) return null;
+  return {
+    _id: student._id || student.id,
+    name: student.name || "",
+    studentName: student.name || "",
+    email: student.email || "",
+    college: student.college || "",
+    degree: student.degree || "",
+    branch: student.branch || "",
+    currentYear: student.year ? String(student.year).replace(/\D/g, "") : "",
+    semester: student.semester || "N/A",
+    goals: Array.isArray(student.goals) ? student.goals : [],
+    opportunityTypes: Array.isArray(student.opportunityTypes) ? student.opportunityTypes : [],
+    workModes: Array.isArray(student.workModes) ? student.workModes : [],
+    preferredLocation: student.preferredLocation || "",
+    preferredRoles: Array.isArray(student.preferredRoles) ? student.preferredRoles : [],
+    selectedInterests: Array.isArray(student.interests) ? student.interests : [],
+    selectedSkills: Array.isArray(student.skills) ? student.skills : [],
+    skills: Array.isArray(student.skills) ? student.skills : [],
+    skillLevels: Array.isArray(student.skills)
+      ? student.skills.reduce((acc, s) => ({ ...acc, [s]: "Intermediate" }), {})
+      : {},
+    learningSkills: Array.isArray(student.learningSkills) ? student.learningSkills : [],
+    projects: Array.isArray(student.projects) ? student.projects : [],
+    certifications: Array.isArray(student.certifications) ? student.certifications : [],
+  };
+}
+
+/**
+ * Performs a complete user logout:
+ * - Clears session user
+ * - Clears active profile & skills from active storage
+ * - Clears active student ID
+ */
+export function logoutUserSession() {
+  clearCurrentUser();
+  clearProfile();
+}
+

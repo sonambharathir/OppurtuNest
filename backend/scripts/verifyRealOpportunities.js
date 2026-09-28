@@ -70,11 +70,11 @@ async function verifyAll() {
       console.log("   ✓ 100% of remaining opportunities have valid, external application URLs!");
     }
 
-    // Brabble hackathon verification
-    const brabbleList = all.filter((o) => o.source === "Brabble");
-    console.log(`\n5. Brabble Opportunities: ${brabbleList.length}`);
-    brabbleList.forEach((b) => {
-      console.log(`   - [${b.id}] ${b.title} -> ${b.applicationUrl}`);
+    // Hackathon opportunities verification
+    const hackathonList = all.filter((o) => o.category === "Hackathons");
+    console.log(`\n5. Hackathon Opportunities: ${hackathonList.length}`);
+    hackathonList.forEach((h) => {
+      console.log(`   - [${h.id}] ${h.title} (${h.organization}) -> ${h.applicationUrl}`);
     });
 
     // Sample from each category

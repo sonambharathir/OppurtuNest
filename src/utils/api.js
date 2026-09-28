@@ -160,3 +160,23 @@ export async function getOpportunityById(id) {
   if (!id) return null;
   return await fetchWithTimeout(`/api/opportunities/${id}`, { method: "GET" });
 }
+
+/**
+ * Log in a student user with email and password
+ */
+export async function loginUser(email, password) {
+  return await fetchWithTimeout("/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  });
+}
+
+/**
+ * Register a new student user
+ */
+export async function registerUser(userData) {
+  return await fetchWithTimeout("/api/auth/register", {
+    method: "POST",
+    body: JSON.stringify(userData),
+  });
+}
