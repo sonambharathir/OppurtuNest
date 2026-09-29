@@ -84,6 +84,18 @@ async function runUnitTests() {
     const invalidDelJson = await invalidDelRes.json();
     assert(invalidDelRes.status === 400 && invalidDelJson.message === "Invalid student ID", "DELETE /api/students/:id rejects invalid ObjectId with 400");
 
+    // 7. Opportunities Counts Endpoint Registered
+    const countsRes = await fetch(`${baseUrl}/api/opportunities/counts`);
+    assert(countsRes.status !== 404, "GET /api/opportunities/counts is registered (does not return 404)");
+
+    // 8. POST /api/recommendations Endpoint Registered
+    const postRecRes = await fetch(`${baseUrl}/api/recommendations`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ profile: { skills: ["React", "Python"] } }),
+    });
+    assert(postRecRes.status !== 404, "POST /api/recommendations is registered (does not return 404)");
+
     console.log(`\nUnit Tests Summary: ${passed} passed, ${failed} failed`);
     server.close();
     process.exit(failed > 0 ? 1 : 0);

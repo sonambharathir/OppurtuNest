@@ -86,19 +86,59 @@ export default function RecommendedOpportunityCard({ opportunity, onSelectOpport
           </p>
         )}
 
-        {/* Skill tags */}
+        {/* Skill tags with matched highlights */}
         {skills && skills.length > 0 && (
           <div className="recommended-skills-wrap">
-            {skills.slice(0, 3).map((skill) => (
-              <span key={skill} className="recommended-skill-pill">
-                {skill}
-              </span>
-            ))}
-            {skills.length > 3 && (
+            {skills.slice(0, 4).map((skill) => {
+              const isMatched = (opportunity.matchedSkills || []).some(
+                (m) =>
+                  m.toLowerCase().trim() === skill.toLowerCase().trim() ||
+                  skill.toLowerCase().includes(m.toLowerCase().trim()) ||
+                  m.toLowerCase().trim().includes(skill.toLowerCase().trim())
+              );
+              return (
+                <span
+                  key={skill}
+                  className={`recommended-skill-pill ${isMatched ? "is-matched" : ""}`}
+                  style={
+                    isMatched
+                      ? {
+                          background: "#e8f5e5",
+                          color: "#24542d",
+                          borderColor: "#a6dca1",
+                          fontWeight: 700,
+                        }
+                      : {}
+                  }
+                  title={isMatched ? "Matched from your profile or resume!" : skill}
+                >
+                  {isMatched && <span style={{ marginRight: "3px" }}>✓</span>}
+                  {skill}
+                </span>
+              );
+            })}
+            {skills.length > 4 && (
               <span className="recommended-skill-more">
-                +{skills.length - 3}
+                +{skills.length - 4}
               </span>
             )}
+          </div>
+        )}
+
+        {/* Qualitative Match Reason Note */}
+        {opportunity.matchReason && (
+          <div
+            style={{
+              fontSize: "11px",
+              color: "#396645",
+              fontWeight: 600,
+              marginTop: "8px",
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+            }}
+          >
+            <span>🌱</span> {opportunity.matchReason}
           </div>
         )}
       </div>

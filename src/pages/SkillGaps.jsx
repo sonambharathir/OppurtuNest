@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import SkillJourneyHeader from "../components/skillJourney/SkillJourneyHeader";
 import SkillGapCard from "../components/skillJourney/SkillGapCard";
 import { careerPathways } from "../data/skillJourneyData";
+import { getProfile, saveProfile, getCurrentUser } from "../utils/profileStorage";
+import { updateCurrentStudentSkills } from "../utils/api";
 import "../styles/skillJourney.css";
 
 export default function SkillGaps({
@@ -10,29 +12,57 @@ export default function SkillGaps({
   onNavigateHome,
   onNavigateDashboard,
 }) {
+  const activeProfile = useMemo(() => profileData || getProfile() || {}, [profileData]);
+
   const [selectedPathwayId, setSelectedPathwayId] = useState(() => {
-    if (profileData?.targetRole) {
-      const match = careerPathways.find((p) =>
-        p.title.toLowerCase().includes(profileData.targetRole.toLowerCase())
+    const roles = activeProfile?.preferredRoles || [];
+    const targetRole = activeProfile?.targetRole || (roles.length > 0 ? roles[0] : "");
+
+    if (targetRole) {
+      const match = careerPathways.find(
+        (p) =>
+          p.title.toLowerCase().includes(targetRole.toLowerCase()) ||
+          p.domain.toLowerCase().includes(targetRole.toLowerCase())
       );
       if (match) return match.id;
     }
     return "frontend-dev";
   });
-  const [learningList, setLearningList] = useState([]);
+
+  const [learningList, setLearningList] = useState(
+    () => activeProfile.learningSkills || []
+  );
 
   // Active pathway
   const activePathway =
     careerPathways.find((p) => p.id === selectedPathwayId) ||
     careerPathways[0];
 
-  const handleAddSkillToLearning = (skillName) => {
-    setLearningList((prev) => {
-      if (prev.includes(skillName)) {
-        return prev.filter((s) => s !== skillName);
+  const handleAddSkillToLearning = async (skillName) => {
+    let nextList;
+    if (learningList.includes(skillName)) {
+      nextList = learningList.filter((s) => s !== skillName);
+    } else {
+      nextList = [...learningList, skillName];
+    }
+    setLearningList(nextList);
+
+    const cached = getProfile() || {};
+    const updated = { ...cached, learningSkills: nextList };
+    saveProfile(updated);
+
+    const currentUser = getCurrentUser();
+    if (currentUser) {
+      try {
+        await updateCurrentStudentSkills({
+          skills: cached.selectedSkills || cached.skills || [],
+          skillLevels: cached.skillLevels || {},
+          learningSkills: nextList,
+        });
+      } catch (err) {
+        console.warn("[SkillGaps] Failed to persist learning skill to backend:", err.message);
       }
-      return [...prev, skillName];
-    });
+    }
   };
 
   return (
@@ -70,7 +100,9 @@ export default function SkillGaps({
           {/* Active Goal Overview & Skills Worth Developing */}
           <SkillGapCard
             pathway={activePathway}
+            profileData={activeProfile}
             onAddSkillToLearning={handleAddSkillToLearning}
+            learningList={learningList}
           />
 
           {/* Learning List Active Toast/Summary */}

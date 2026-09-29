@@ -1,6 +1,9 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const Student = require("../models/Student");
+const { authMiddleware, JWT_SECRET } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
@@ -8,18 +11,53 @@ const router = express.Router();
  * Strips sensitive fields (like password) before returning student object
  */
 function sanitizeStudent(student) {
-  const obj = student.toObject ? student.toObject() : { ...student };
-  delete obj.password;
+  const obj = student && typeof student.toObject === "function" ? student.toObject() : { ...student };
+  if (obj) {
+    delete obj.password;
+  }
   return obj;
 }
 
 /**
+ * Generates signed JWT authentication token for a student
+ */
+function generateToken(student) {
+  return jwt.sign(
+    {
+      id: student._id.toString(),
+      email: student.email,
+    },
+    JWT_SECRET,
+    { expiresIn: "30d" }
+  );
+}
+
+/**
  * POST /api/auth/register
- * Registers a new student account or updates an existing one with credentials
+ * Registers a new student account with hashed password or updates existing credentials
  */
 router.post("/register", async (req, res) => {
   try {
-    const { email, password, name, college, degree, branch, year, skills, goals, opportunityTypes, workModes, preferredLocation, preferredRoles, interests } = req.body;
+    const {
+      email,
+      password,
+      name,
+      college,
+      degree,
+      branch,
+      year,
+      skills,
+      goals,
+      opportunityTypes,
+      workModes,
+      preferredLocation,
+      preferredRoles,
+      interests,
+      skillLevels,
+      learningSkills,
+      projects,
+      certifications,
+    } = req.body;
 
     if (!email || !email.trim()) {
       return res.status(400).json({ message: "Email is required" });
@@ -30,13 +68,14 @@ router.post("/register", async (req, res) => {
     }
 
     const cleanEmail = email.trim().toLowerCase();
+    const hashedPassword = await bcrypt.hash(password.trim(), 10);
 
     // Check if a student already exists with this email
     let student = await Student.findOne({ email: cleanEmail });
 
     if (student) {
       // If student exists, update credentials and profile details
-      student.password = password.trim();
+      student.password = hashedPassword;
       if (name) student.name = name.trim();
       if (college) student.college = college.trim();
       if (degree) student.degree = degree.trim();
@@ -49,19 +88,26 @@ router.post("/register", async (req, res) => {
       if (preferredLocation) student.preferredLocation = preferredLocation;
       if (Array.isArray(preferredRoles) && preferredRoles.length > 0) student.preferredRoles = preferredRoles;
       if (Array.isArray(interests) && interests.length > 0) student.interests = interests;
+      if (skillLevels && typeof skillLevels === "object") student.skillLevels = skillLevels;
+      if (Array.isArray(learningSkills)) student.learningSkills = learningSkills;
+      if (Array.isArray(projects)) student.projects = projects;
+      if (Array.isArray(certifications)) student.certifications = certifications;
 
       await student.save();
+      const token = generateToken(student);
+
       return res.status(200).json({
         message: "Account updated successfully",
+        token,
         user: sanitizeStudent(student),
       });
     }
 
-    // Create a new student
+    // Create a new student with hashed password
     student = new Student({
       name: name && name.trim() ? name.trim() : "OppurtuNest Student",
       email: cleanEmail,
-      password: password.trim(),
+      password: hashedPassword,
       college: college || "",
       degree: degree || "",
       branch: branch || "",
@@ -73,12 +119,18 @@ router.post("/register", async (req, res) => {
       preferredLocation: preferredLocation || "",
       preferredRoles: Array.isArray(preferredRoles) ? preferredRoles : [],
       interests: Array.isArray(interests) ? interests : [],
+      skillLevels: skillLevels && typeof skillLevels === "object" ? skillLevels : {},
+      learningSkills: Array.isArray(learningSkills) ? learningSkills : [],
+      projects: Array.isArray(projects) ? projects : [],
+      certifications: Array.isArray(certifications) ? certifications : [],
     });
 
     await student.save();
+    const token = generateToken(student);
 
     return res.status(201).json({
       message: "Account created successfully",
+      token,
       user: sanitizeStudent(student),
     });
   } catch (error) {
@@ -92,7 +144,7 @@ router.post("/register", async (req, res) => {
 
 /**
  * POST /api/auth/login
- * Validates credentials and returns the student's profile & skills
+ * Validates credentials using bcrypt and returns signed JWT + sanitized profile
  */
 router.post("/login", async (req, res) => {
   try {
@@ -107,7 +159,6 @@ router.post("/login", async (req, res) => {
     }
 
     const cleanEmail = email.trim().toLowerCase();
-
     const student = await Student.findOne({ email: cleanEmail });
 
     if (!student) {
@@ -116,21 +167,37 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    // If student has a password, verify it matches
-    if (student.password && student.password !== password.trim()) {
-      return res.status(401).json({
-        message: "Invalid email or password.",
-      });
+    if (!student.password) {
+      // If legacy student had no password set, set hashed password now
+      student.password = await bcrypt.hash(password.trim(), 10);
+      await student.save();
+    } else {
+      let isMatch = false;
+      const storedPass = student.password;
+
+      if (storedPass.startsWith("$2a$") || storedPass.startsWith("$2b$") || storedPass.startsWith("$2y$")) {
+        isMatch = await bcrypt.compare(password.trim(), storedPass);
+      } else {
+        // Plaintext legacy fallback with automatic migration to bcrypt
+        isMatch = storedPass === password.trim();
+        if (isMatch) {
+          student.password = await bcrypt.hash(password.trim(), 10);
+          await student.save();
+        }
+      }
+
+      if (!isMatch) {
+        return res.status(401).json({
+          message: "Invalid email or password.",
+        });
+      }
     }
 
-    // If student had no password set yet (legacy onboarding record), attach it
-    if (!student.password) {
-      student.password = password.trim();
-      await student.save();
-    }
+    const token = generateToken(student);
 
     return res.status(200).json({
       message: "Login successful",
+      token,
       user: sanitizeStudent(student),
     });
   } catch (error) {
@@ -143,8 +210,22 @@ router.post("/login", async (req, res) => {
 });
 
 /**
+ * GET /api/auth/me
+ * Protected route: returns current authenticated user from token
+ */
+router.get("/me", authMiddleware, async (req, res) => {
+  try {
+    return res.status(200).json({
+      user: sanitizeStudent(req.user),
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "Failed to fetch user", error: error.message });
+  }
+});
+
+/**
  * GET /api/auth/me/:id
- * Retrieves the current logged-in user by ID
+ * Retrieves the user by ID (for backward compatibility)
  */
 router.get("/me/:id", async (req, res) => {
   try {
@@ -153,7 +234,7 @@ router.get("/me/:id", async (req, res) => {
       return res.status(400).json({ message: "Invalid user ID" });
     }
 
-    const student = await Student.findById(id);
+    const student = await Student.findById(id).select("-password");
     if (!student) {
       return res.status(404).json({ message: "User not found" });
     }

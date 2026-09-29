@@ -4,6 +4,7 @@ import {
   saveCurrentUser,
   saveProfile,
   saveStudentId,
+  saveAuthToken,
   saveUserToVault,
   getUserFromVault,
   mapStudentToProfile,
@@ -42,6 +43,8 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
       if (isSignUp) {
         // --- SIGN UP / REGISTER ---
         let studentRecord = null;
+        let authToken = null;
+
         try {
           const res = await registerUser({
             name: name.trim() || "Student",
@@ -49,29 +52,30 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
             password: password.trim(),
             degree,
             branch,
-            skills: ["JavaScript", "React", "Python"],
-            goals: ["Land an Internship", "Build Real Projects"],
+            skills: [],
+            goals: ["Explore Opportunities"],
           });
           studentRecord = res?.user;
+          authToken = res?.token;
         } catch (apiErr) {
-          // Fallback if backend offline: create local vault record
-          console.warn("[AuthModal] Backend registration fallback to local vault:", apiErr.message);
+          console.warn("[AuthModal] Backend registration fallback:", apiErr.message);
         }
 
         const newUserAccount = {
           _id: studentRecord?._id || `user_${Date.now()}`,
           name: name.trim() || studentRecord?.name || "Student",
           email: cleanEmail,
-          password: password.trim(),
           degree,
           branch,
-          skills: studentRecord?.skills || ["JavaScript", "React", "Python"],
-          goals: ["Land an Internship", "Build Real Projects"],
+          skills: studentRecord?.skills || [],
+          goals: studentRecord?.goals || ["Explore Opportunities"],
         };
 
         const newProfile = mapStudentToProfile(studentRecord || newUserAccount);
 
-        // Save into vault, active session, and active profile
+        if (authToken) {
+          saveAuthToken(authToken);
+        }
         saveUserToVault({ ...newUserAccount, profile: newProfile });
         saveCurrentUser(newUserAccount);
         saveProfile(newProfile);
@@ -83,16 +87,16 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
       } else {
         // --- LOG IN ---
         let studentRecord = null;
+        let authToken = null;
+
         try {
           const res = await loginUser(cleanEmail, password.trim());
           studentRecord = res?.user;
+          authToken = res?.token;
         } catch (apiErr) {
-          // If backend returned error or is offline, check local vault
+          // Fallback to local vault if backend offline
           const vaultUser = getUserFromVault(cleanEmail);
           if (vaultUser) {
-            if (vaultUser.password && vaultUser.password !== password.trim()) {
-              throw new Error("Invalid password. Please check your credentials.");
-            }
             studentRecord = vaultUser;
           } else {
             throw new Error(apiErr.message || "Invalid email or password.");
@@ -103,10 +107,11 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
           throw new Error("User record could not be retrieved.");
         }
 
-        // Get saved profile from local vault or map from backend student
-        const vaultUser = getUserFromVault(cleanEmail);
-        const mappedProfile = vaultUser?.profile || mapStudentToProfile(studentRecord);
+        const mappedProfile = mapStudentToProfile(studentRecord);
 
+        if (authToken) {
+          saveAuthToken(authToken);
+        }
         saveCurrentUser(studentRecord);
         saveProfile(mappedProfile);
         if (studentRecord._id) saveStudentId(studentRecord._id);
@@ -121,32 +126,74 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
     }
   };
 
-  // Quick Demo Account Pre-fill
-  const handleQuickDemoLogin = (demoName, demoEmail, demoDegree, demoBranch, demoSkills) => {
+  // Quick Demo Account Helper with Real Backend Authentication
+  const handleQuickDemoLogin = async (demoName, demoEmail, demoDegree, demoBranch, demoSkills, demoInterests) => {
     setName(demoName);
     setEmail(demoEmail);
     setPassword("password123");
     setDegree(demoDegree);
     setBranch(demoBranch);
+    setIsLoading(true);
 
-    const demoUser = {
-      _id: `demo_${demoEmail.split("@")[0]}`,
-      name: demoName,
-      email: demoEmail,
-      degree: demoDegree,
-      branch: demoBranch,
-      skills: demoSkills,
-      goals: ["Land a Top Internship", "Win Hackathons"],
-    };
+    try {
+      // Attempt login or register on backend
+      let res = null;
+      try {
+        res = await loginUser(demoEmail, "password123");
+      } catch (loginErr) {
+        res = await registerUser({
+          name: demoName,
+          email: demoEmail,
+          password: "password123",
+          degree: demoDegree,
+          branch: demoBranch,
+          skills: demoSkills,
+          interests: demoInterests || [],
+          goals: ["Find internships", "Build real projects"],
+        });
+      }
 
-    const demoProfile = mapStudentToProfile(demoUser);
-    saveUserToVault({ ...demoUser, profile: demoProfile });
-    saveCurrentUser(demoUser);
-    saveProfile(demoProfile);
-    saveStudentId(demoUser._id);
+      const studentRecord = res?.user || {
+        name: demoName,
+        email: demoEmail,
+        degree: demoDegree,
+        branch: demoBranch,
+        skills: demoSkills,
+        interests: demoInterests || [],
+      };
 
-    if (onAuthSuccess) onAuthSuccess(demoUser, demoProfile);
-    onClose();
+      if (res?.token) {
+        saveAuthToken(res.token);
+      }
+
+      const demoProfile = mapStudentToProfile(studentRecord);
+      saveCurrentUser(studentRecord);
+      saveProfile(demoProfile);
+      if (studentRecord._id) saveStudentId(studentRecord._id);
+
+      setIsLoading(false);
+      if (onAuthSuccess) onAuthSuccess(studentRecord, demoProfile);
+      onClose();
+    } catch (err) {
+      // Fallback
+      const demoUser = {
+        _id: `demo_${demoEmail.split("@")[0]}`,
+        name: demoName,
+        email: demoEmail,
+        degree: demoDegree,
+        branch: demoBranch,
+        skills: demoSkills,
+        interests: demoInterests || [],
+        goals: ["Find internships", "Build real projects"],
+      };
+      const demoProfile = mapStudentToProfile(demoUser);
+      saveCurrentUser(demoUser);
+      saveProfile(demoProfile);
+      saveStudentId(demoUser._id);
+      setIsLoading(false);
+      if (onAuthSuccess) onAuthSuccess(demoUser, demoProfile);
+      onClose();
+    }
   };
 
   return (
@@ -429,7 +476,8 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
                   "rohan.cs@oppurtunest.local",
                   "B.Tech",
                   "Computer Science",
-                  ["JavaScript", "React", "Node.js", "Python", "REST APIs"]
+                  ["JavaScript", "React", "Node.js", "Python", "REST APIs"],
+                  ["Technology & Software", "Web Development"]
                 )
               }
               style={{
@@ -455,7 +503,8 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
                   "ananya.ai@oppurtunest.local",
                   "B.Tech",
                   "AI & Data Science",
-                  ["Python", "Machine Learning", "PyTorch", "Data Science", "SQL"]
+                  ["Python", "Machine Learning", "PyTorch", "Data Science", "SQL"],
+                  ["AI & Data", "Machine Learning"]
                 )
               }
               style={{

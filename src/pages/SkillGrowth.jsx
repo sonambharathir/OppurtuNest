@@ -1,5 +1,6 @@
+import { useMemo } from "react";
 import SkillJourneyHeader from "../components/skillJourney/SkillJourneyHeader";
-import { defaultStudentSkills, initialGrowthMilestones } from "../data/skillJourneyData";
+import { getProfile } from "../utils/profileStorage";
 import "../styles/skillJourney.css";
 
 export default function SkillGrowth({
@@ -8,15 +9,89 @@ export default function SkillGrowth({
   onNavigateHome,
   onNavigateDashboard,
 }) {
-  // Read skills from profileData if available, otherwise default skills
-  const studentSkills =
-    profileData?.selectedSkills && profileData.selectedSkills.length > 0
-      ? profileData.selectedSkills.map((name) => ({
-          name,
-          level: profileData.skillLevels?.[name] || "Beginner",
-          verified: true,
-        }))
-      : defaultStudentSkills;
+  const active = useMemo(() => profileData || getProfile() || {}, [profileData]);
+
+  // Aggregate real student skills
+  const studentSkills = useMemo(() => {
+    const map = new Map();
+    const add = (arr, src) => {
+      if (Array.isArray(arr)) {
+        arr.forEach((s) => {
+          if (!s || typeof s !== "string") return;
+          const trimmed = s.trim();
+          if (!trimmed) return;
+          const lower = trimmed.toLowerCase();
+          if (!map.has(lower)) {
+            const level = active.skillLevels?.[trimmed] || "Intermediate";
+            map.set(lower, { name: trimmed, level, source: src });
+          }
+        });
+      }
+    };
+    add(active.selectedSkills, "profile");
+    add(active.skills, "profile");
+    add(active.resumeSkills, "resume");
+    add(active.assessmentSkills, "assessment");
+    return Array.from(map.values());
+  }, [active]);
+
+  const assessmentResults = active.assessmentResults || null;
+  const learningSkills = active.learningSkills || [];
+  const hasAssessment = Boolean(assessmentResults && assessmentResults.snapshot?.length > 0);
+
+  // Calculate dynamic, honest milestones based on actual student data
+  const dynamicMilestones = useMemo(() => {
+    const hasProfileSkills = studentSkills.length > 0;
+    const hasTargetRole = (active.preferredRoles && active.preferredRoles.length > 0) || Boolean(active.degree);
+    const hasLearning = learningSkills.length > 0;
+
+    return [
+      {
+        id: "mile-1",
+        title: "Set up your Skill Profile",
+        description: hasProfileSkills
+          ? `Added ${studentSkills.length} skill${studentSkills.length > 1 ? "s" : ""} to your profile.`
+          : "List the technologies, tools, and abilities you feel comfortable with.",
+        status: hasProfileSkills ? "completed" : "in_progress",
+        completedDate: hasProfileSkills ? "Completed" : null,
+        actionText: hasProfileSkills ? null : "Add Skills",
+        actionPage: "skills",
+      },
+      {
+        id: "mile-2",
+        title: "Choose a Target Pathway",
+        description: hasTargetRole
+          ? `Selected goal: ${active.preferredRoles?.[0] || active.degree || "Active Pathway"}`
+          : "Explore career pathways like Frontend Developer or AI Engineer to align your learning.",
+        status: hasTargetRole ? "completed" : "in_progress",
+        completedDate: hasTargetRole ? "Completed" : null,
+        actionText: hasTargetRole ? null : "Explore Skill Gaps",
+        actionPage: "gaps",
+      },
+      {
+        id: "mile-3",
+        title: "Take a Quick Skill Assessment",
+        description: hasAssessment
+          ? `Completed check-in in ${assessmentResults.skillArea} on ${assessmentResults.completedAt}.`
+          : "Evaluate your practical understanding with a low-pressure 12-question check-in.",
+        status: hasAssessment ? "completed" : "pending",
+        completedDate: hasAssessment ? assessmentResults.completedAt : null,
+        actionText: hasAssessment ? "Retake Assessment" : "Take Assessment",
+        actionPage: "assessment",
+      },
+      {
+        id: "mile-4",
+        title: "Bridge a Recommended Skill Gap",
+        description: hasLearning
+          ? `${learningSkills.length} skill${learningSkills.length > 1 ? "s" : ""} in your learning list: ${learningSkills.slice(0, 2).join(", ")}.`
+          : "Save a high-value skill (like TypeScript or SQL) to your learning list.",
+        status: hasLearning ? "completed" : "pending",
+        completedDate: hasLearning ? "In Progress" : null,
+        actionText: hasLearning ? "View Matches" : "Explore Gaps",
+        actionPage: hasLearning ? "matching" : "gaps",
+      },
+    ];
+  }, [studentSkills, active, hasAssessment, assessmentResults, learningSkills]);
 
   return (
     <div className="skill-journey-page">
@@ -34,13 +109,12 @@ export default function SkillGrowth({
           {/* Welcome / Growth Story Starting Banner */}
           <div className="growth-welcome-card">
             <div className="growth-welcome-left">
-              <span className="dash-eyebrow">BEGINNING YOUR MILESTONES</span>
+              <span className="dash-eyebrow">YOUR MILESTONES & STORY</span>
               <h2 className="growth-welcome-title">
                 Your growth story starts here 🌱
               </h2>
               <p className="growth-welcome-copy">
-                Complete an assessment, add a skill, or start learning to begin tracking your progress.
-                Every small step builds toward your next internship, hackathon, or role.
+                Every skill added, assessment completed, and opportunity explored shapes your path toward your next internship or role.
               </p>
             </div>
             <div className="growth-welcome-icon" aria-hidden="true">
@@ -58,11 +132,8 @@ export default function SkillGrowth({
             </div>
 
             <div className="growth-milestones-list">
-              {initialGrowthMilestones.map((milestone) => (
-                <article
-                  key={milestone.id}
-                  className="growth-milestone-item"
-                >
+              {dynamicMilestones.map((milestone) => (
+                <article key={milestone.id} className="growth-milestone-item">
                   <div className="milestone-left">
                     <div
                       className={`milestone-status-icon status-${milestone.status}`}
@@ -77,11 +148,12 @@ export default function SkillGrowth({
                   </div>
 
                   <div className="milestone-right">
-                    {milestone.status === "completed" ? (
+                    {milestone.status === "completed" && milestone.completedDate ? (
                       <span className="milestone-completed-badge">
-                        ✓ {milestone.completedDate || "Completed"}
+                        ✓ {milestone.completedDate}
                       </span>
-                    ) : milestone.actionText ? (
+                    ) : null}
+                    {milestone.actionText && (
                       <button
                         type="button"
                         className="milestone-action-btn"
@@ -93,8 +165,6 @@ export default function SkillGrowth({
                       >
                         {milestone.actionText} →
                       </button>
-                    ) : (
-                      <span className="milestone-pending-label">Up next</span>
                     )}
                   </div>
                 </article>
@@ -122,40 +192,67 @@ export default function SkillGrowth({
               </div>
             </div>
 
-            <div className="growth-skills-chip-grid">
-              {studentSkills.map((sk) => (
-                <div key={sk.name || sk.id} className="growth-skill-chip">
-                  <span className="chip-name">{sk.name}</span>
-                  <span className="chip-level">{sk.level || "Intermediate"}</span>
-                </div>
-              ))}
-            </div>
+            {studentSkills.length > 0 ? (
+              <div className="growth-skills-chip-grid">
+                {studentSkills.map((sk) => (
+                  <div key={sk.name} className="growth-skill-chip">
+                    <span className="chip-name">{sk.name}</span>
+                    <span className="chip-level">{sk.level || "Intermediate"}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="growth-empty-card">
+                <div className="growth-empty-icon">🌱</div>
+                <h4 className="growth-empty-title">No skills added yet</h4>
+                <p className="growth-empty-text">
+                  Add your skills in Your Skills to start matching with relevant opportunities.
+                </p>
+                <button
+                  type="button"
+                  className="growth-secondary-btn"
+                  onClick={() => onNavigateTab && onNavigateTab("skills")}
+                >
+                  Go to Your Skills →
+                </button>
+              </div>
+            )}
           </section>
 
-          {/* Section 3: Skills Developed */}
+          {/* Section 3: Learning List / Skills in Development */}
           <section className="growth-section">
             <div className="growth-section-heading">
-              <h3 className="growth-section-title">Skills Developed</h3>
+              <h3 className="growth-section-title">Skills in Development ({learningSkills.length})</h3>
               <p className="growth-section-caption">
-                Skills you have leveled up through completed courses, internships, or verified challenges.
+                Skills you are actively developing to bridge career gaps and unlock opportunities.
               </p>
             </div>
 
-            {/* Meaningful Empty State: No Fake Numbers */}
-            <div className="growth-empty-card">
-              <div className="growth-empty-icon">🌱</div>
-              <h4 className="growth-empty-title">No skills marked as leveled up yet</h4>
-              <p className="growth-empty-text">
-                As you build projects, complete internships, or take assessments, your leveled-up skills will be documented here.
-              </p>
-              <button
-                type="button"
-                className="growth-secondary-btn"
-                onClick={() => onNavigateTab && onNavigateTab("gaps")}
-              >
-                Explore Skills Worth Developing →
-              </button>
-            </div>
+            {learningSkills.length > 0 ? (
+              <div className="growth-skills-chip-grid">
+                {learningSkills.map((skillName) => (
+                  <div key={skillName} className="growth-skill-chip" style={{ borderColor: "#eedec0", background: "#fffdfa" }}>
+                    <span className="chip-name">🌱 {skillName}</span>
+                    <span className="chip-level" style={{ background: "#fbf3e6", color: "#845e28" }}>Learning</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="growth-empty-card">
+                <div className="growth-empty-icon">🌱</div>
+                <h4 className="growth-empty-title">No skills marked as learning yet</h4>
+                <p className="growth-empty-text">
+                  Explore high-demand skills in Skills Worth Developing and add them to your learning list.
+                </p>
+                <button
+                  type="button"
+                  className="growth-secondary-btn"
+                  onClick={() => onNavigateTab && onNavigateTab("gaps")}
+                >
+                  Explore Skills Worth Developing →
+                </button>
+              </div>
+            )}
           </section>
 
           {/* Section 4: Assessments */}
@@ -167,21 +264,69 @@ export default function SkillGrowth({
               </p>
             </div>
 
-            {/* Interactive Starting State for Assessments */}
-            <div className="growth-empty-card">
-              <div className="growth-empty-icon">📝</div>
-              <h4 className="growth-empty-title">Ready for a low-pressure skill check-in?</h4>
-              <p className="growth-empty-text">
-                Take a 12-question check-in across Web Development, Programming, AI & Data, UI/UX, or Business to evaluate your practical understanding.
-              </p>
-              <button
-                type="button"
-                className="growth-secondary-btn"
-                onClick={() => onNavigateTab && onNavigateTab("assessment")}
-              >
-                Take a Quick Assessment →
-              </button>
-            </div>
+            {hasAssessment ? (
+              <div className="growth-empty-card" style={{ textAlign: "left", padding: "24px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                  <div>
+                    <span style={{ fontSize: "12px", fontWeight: 700, color: "#396645", textTransform: "uppercase" }}>
+                      ✦ Latest Check-in Completed
+                    </span>
+                    <h4 style={{ margin: "2px 0 0", fontFamily: "Fredoka, sans-serif", fontSize: "18px", color: "#2c3d2a" }}>
+                      {assessmentResults.skillArea}
+                    </h4>
+                  </div>
+                  <span style={{ fontSize: "12px", color: "#6c8068" }}>
+                    {assessmentResults.completedAt}
+                  </span>
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "10px", marginTop: "14px" }}>
+                  {assessmentResults.snapshot?.map((item) => (
+                    <div
+                      key={item.skill}
+                      style={{
+                        background: "#ffffff",
+                        border: "1px solid #dbe6d7",
+                        borderRadius: "12px",
+                        padding: "10px 12px",
+                      }}
+                    >
+                      <span style={{ display: "block", fontSize: "13px", fontWeight: 700, color: "#2c3d2a" }}>
+                        {item.skill}
+                      </span>
+                      <span style={{ fontSize: "11.5px", color: "#396645", fontWeight: 600 }}>
+                        ✦ {item.level} ({item.knowledgeScore})
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ marginTop: "16px", display: "flex", gap: "10px" }}>
+                  <button
+                    type="button"
+                    className="growth-secondary-btn"
+                    onClick={() => onNavigateTab && onNavigateTab("assessment")}
+                  >
+                    Take Another Assessment →
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="growth-empty-card">
+                <div className="growth-empty-icon">📝</div>
+                <h4 className="growth-empty-title">Ready for a low-pressure skill check-in?</h4>
+                <p className="growth-empty-text">
+                  Take a 12-question check-in across Web Development, Programming, AI & Data, UI/UX, or Business to evaluate your practical understanding.
+                </p>
+                <button
+                  type="button"
+                  className="growth-secondary-btn"
+                  onClick={() => onNavigateTab && onNavigateTab("assessment")}
+                >
+                  Take a Quick Assessment →
+                </button>
+              </div>
+            )}
           </section>
 
           {/* Section 5: Learning Activity Log */}
@@ -189,16 +334,19 @@ export default function SkillGrowth({
             <div className="growth-section-heading">
               <h3 className="growth-section-title">Learning Activity</h3>
               <p className="growth-section-caption">
-                A chronological log of your learning sessions, applied opportunities, and milestones.
+                A chronological record of your skill development and applied opportunities.
               </p>
             </div>
 
-            {/* Meaningful Empty State: No fake statistics */}
             <div className="growth-empty-card">
               <div className="growth-empty-icon">📖</div>
-              <h4 className="growth-empty-title">Your activity timeline will unfold here</h4>
+              <h4 className="growth-empty-title">
+                {studentSkills.length > 0 ? "Your OppurtuNest journey is underway" : "Your activity timeline will unfold here"}
+              </h4>
               <p className="growth-empty-text">
-                Every time you apply for an opportunity, save a skill to your learning list, or complete an assessment, it will be saved to your OppurtuNest story.
+                {studentSkills.length > 0
+                  ? `You have ${studentSkills.length} active skill${studentSkills.length > 1 ? "s" : ""} on your profile. Explore matches to apply for live roles.`
+                  : "Every time you apply for an opportunity, save a skill to your learning list, or complete an assessment, it is saved to your profile."}
               </p>
               <button
                 type="button"

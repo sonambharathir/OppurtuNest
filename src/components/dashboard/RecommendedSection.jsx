@@ -1,10 +1,20 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import RecommendedOpportunityCard from "./RecommendedOpportunityCard";
 import OpportunityModal from "../skillJourney/OpportunityModal";
-import { getProfile, getStudentId, saveStudentId } from "../../utils/profileStorage";
-import { getRecommendations, createStudent, mapProfileToBackendStudent } from "../../utils/api";
+import { getProfile, getResume, getCurrentUser } from "../../utils/profileStorage";
+import {
+  getCurrentStudentRecommendations,
+  getRecommendationsWithProfile,
+  getOpportunities,
+} from "../../utils/api";
+import { getPersonalizedRecommendations } from "../../utils/recommendationUtils";
 
-export default function RecommendedSection({ profileData, onStartOnboarding }) {
+export default function RecommendedSection({
+  profileData,
+  uploadedResume,
+  onStartOnboarding,
+  onOpenResume,
+}) {
   const [selectedOpp, setSelectedOpp] = useState(null);
   const [backendRecommendations, setBackendRecommendations] = useState([]);
   const [isLoadingBackend, setIsLoadingBackend] = useState(false);
@@ -15,17 +25,52 @@ export default function RecommendedSection({ profileData, onStartOnboarding }) {
     return profileData || getProfile();
   }, [profileData]);
 
+  // Retrieve active resume (prop or localStorage)
+  const activeResume = useMemo(() => {
+    return uploadedResume || getResume();
+  }, [uploadedResume]);
+
+  // Unified skills list combining profile skills, detected resume skills, and stored resume skills
+  const unifiedSkills = useMemo(() => {
+    const pSkills = Array.isArray(activeProfile?.selectedSkills)
+      ? activeProfile.selectedSkills
+      : Array.isArray(activeProfile?.skills)
+      ? activeProfile.skills
+      : [];
+    const rSkills = Array.isArray(activeResume?.detectedSkills)
+      ? activeResume.detectedSkills
+      : Array.isArray(activeProfile?.resumeSkills)
+      ? activeProfile.resumeSkills
+      : [];
+    const aSkills = Array.isArray(activeProfile?.assessmentSkills)
+      ? activeProfile.assessmentSkills
+      : [];
+
+    const seen = new Set();
+    const result = [];
+    [...rSkills, ...pSkills, ...aSkills].forEach((s) => {
+      if (s && typeof s === "string") {
+        const cleanSkill = s.trim();
+        const lower = cleanSkill.toLowerCase();
+        if (cleanSkill && !seen.has(lower)) {
+          seen.add(lower);
+          result.push(cleanSkill);
+        }
+      }
+    });
+    return result;
+  }, [activeProfile, activeResume]);
+
   const hasPreferences = Boolean(
-    activeProfile &&
-    (activeProfile.goals?.length > 0 ||
-      activeProfile.opportunityTypes?.length > 0 ||
-      activeProfile.selectedSkills?.length > 0 ||
-      activeProfile.skills?.length > 0 ||
-      activeProfile.preferredRoles?.length > 0 ||
-      activeProfile.selectedInterests?.length > 0)
+    unifiedSkills.length > 0 ||
+    activeProfile?.goals?.length > 0 ||
+    activeProfile?.opportunityTypes?.length > 0 ||
+    activeProfile?.preferredRoles?.length > 0 ||
+    activeProfile?.selectedInterests?.length > 0 ||
+    activeProfile?.degree
   );
 
-  // Fetch recommendations from GET /api/recommendations/:studentId
+  // Fetch recommendations tailored to real student skills & resume
   const fetchRecommendations = useCallback(async () => {
     if (!hasPreferences) {
       setBackendRecommendations([]);
@@ -35,43 +80,49 @@ export default function RecommendedSection({ profileData, onStartOnboarding }) {
     setIsLoadingBackend(true);
     setErrorMessage(null);
 
+    const recommendationProfile = {
+      ...(activeProfile || {}),
+      skills: unifiedSkills,
+      selectedSkills: unifiedSkills,
+      resumeSkills: activeResume?.detectedSkills || activeProfile?.resumeSkills || [],
+      resume: activeResume || activeProfile?.resume || null,
+    };
+
+    let fetchedSuccessfully = false;
+
+    // 1. Primary: Request recommendations from backend
     try {
-      let studentId = getStudentId();
-
-      // If student profile exists in storage but not yet registered on backend, sync it
-      if (!studentId && activeProfile) {
-        try {
-          const studentPayload = mapProfileToBackendStudent(activeProfile);
-          const created = await createStudent(studentPayload);
-          if (created && created._id) {
-            studentId = created._id;
-            saveStudentId(studentId);
-          }
-        } catch (syncErr) {
-          console.warn("[RecommendedSection] Could not sync student profile with backend:", syncErr.message);
-        }
-      }
-
-      if (!studentId) {
-        setIsLoadingBackend(false);
-        setBackendRecommendations([]);
-        return;
-      }
-
-      const data = await getRecommendations(studentId, 6);
+      const data = await getRecommendationsWithProfile(recommendationProfile, 6);
       if (Array.isArray(data)) {
         setBackendRecommendations(data);
-      } else {
-        setBackendRecommendations([]);
+        fetchedSuccessfully = true;
+        setIsLoadingBackend(false);
+        return;
       }
-    } catch (err) {
-      console.error("[RecommendedSection] Error loading recommendations:", err.message);
+    } catch (apiErr) {
+      console.warn("[RecommendedSection] Backend recommendation call failed, attempting client-side fallback:", apiErr.message);
+    }
+
+    // 2. Resilient Fallback: Calculate client-side using live database opportunities
+    try {
+      const opps = await getOpportunities();
+      if (Array.isArray(opps)) {
+        const localRecs = getPersonalizedRecommendations(opps, recommendationProfile, 6);
+        setBackendRecommendations(localRecs);
+        fetchedSuccessfully = true;
+        setIsLoadingBackend(false);
+        return;
+      }
+    } catch (fallbackErr) {
+      console.error("[RecommendedSection] Fallback recommendation calculation failed:", fallbackErr.message);
+    }
+
+    if (!fetchedSuccessfully) {
       setErrorMessage("Unable to load opportunities right now.");
       setBackendRecommendations([]);
-    } finally {
-      setIsLoadingBackend(false);
     }
-  }, [activeProfile, hasPreferences]);
+    setIsLoadingBackend(false);
+  }, [activeProfile, activeResume, unifiedSkills, hasPreferences]);
 
   useEffect(() => {
     fetchRecommendations();
@@ -83,12 +134,81 @@ export default function RecommendedSection({ profileData, onStartOnboarding }) {
         <div className="dash-section-title-wrap">
           <span className="dash-section-eyebrow">✦ RECOMMENDED FOR YOU 🌱</span>
           <h2 className="dash-section-title">Picked based on your profile and interests.</h2>
+
+          {/* Active Resume / Skills Indicator */}
+          {activeResume?.detectedSkills?.length > 0 && (
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                background: "#f0f7ee",
+                border: "1px solid #b7dab2",
+                borderRadius: "12px",
+                padding: "4px 12px",
+                fontSize: "12px",
+                color: "#2b5735",
+                fontWeight: 700,
+                marginTop: "6px",
+                width: "fit-content",
+              }}
+            >
+              <span>📄</span>
+              <span>
+                Personalized with <strong>{activeResume.fileName || "Resume"}</strong> ({activeResume.detectedSkills.length} skills detected)
+              </span>
+              {onOpenResume && (
+                <button
+                  type="button"
+                  onClick={onOpenResume}
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    color: "#214e2b",
+                    fontWeight: 800,
+                    cursor: "pointer",
+                    textDecoration: "underline",
+                    fontSize: "11.5px",
+                    marginLeft: "4px",
+                  }}
+                >
+                  Change Resume
+                </button>
+              )}
+            </div>
+          )}
         </div>
-        {hasPreferences && (
-          <span className="dash-personalized-tag">
-            ✓ Filtered for your profile
-          </span>
-        )}
+
+        <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+          {hasPreferences && (
+            <span className="dash-personalized-tag">
+              ✓ Filtered for {unifiedSkills.length > 0 ? `${unifiedSkills.length} skills` : "your profile"}
+            </span>
+          )}
+
+          {!activeResume && onOpenResume && (
+            <button
+              type="button"
+              onClick={onOpenResume}
+              style={{
+                background: "#ffffff",
+                border: "1.5px dashed #527a56",
+                borderRadius: "999px",
+                padding: "5px 14px",
+                fontSize: "12px",
+                fontWeight: 700,
+                color: "#2b5735",
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+              }}
+              title="Upload your resume to extract skills and improve recommendations"
+            >
+              <span>📄</span> Upload Resume
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Loading state */}

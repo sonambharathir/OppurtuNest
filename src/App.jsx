@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import HeroSection from "./components/HeroSection";
 import SkillJourneySection from "./components/SkillJourneySection";
 import QuickAccessSection from "./components/QuickAccessSection";
@@ -20,11 +20,15 @@ import AuthModal from "./components/auth/AuthModal";
 import {
   getProfile,
   saveProfile,
+  getResume,
+  saveResume,
   getCurrentUser,
   saveCurrentUser,
   logoutUserSession,
   saveUserToVault,
+  mapStudentToProfile,
 } from "./utils/profileStorage";
+import { getCurrentAuthenticatedStudent } from "./utils/api";
 import "./App.css";
 import "./styles/quickAccessModals.css";
 
@@ -32,7 +36,7 @@ export default function App() {
   const [showResumeModal, setShowResumeModal] = useState(false);
   const [showSkillAnalyzerModal, setShowSkillAnalyzerModal] = useState(false);
   const [selectedCategoryModal, setSelectedCategoryModal] = useState(null);
-  const [uploadedResume, setUploadedResume] = useState(null);
+  const [uploadedResume, setUploadedResume] = useState(() => getResume());
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
   const [showProfilePage, setShowProfilePage] = useState(false);
@@ -48,8 +52,50 @@ export default function App() {
     return user ? getProfile() : null;
   });
 
-  const handleAuthSuccess = (user, profile) => {
+  // On initial mount, sync fresh student profile from MongoDB if user is logged in
+  useEffect(() => {
+    async function syncStudentFromBackend() {
+      const user = getCurrentUser();
+      if (user) {
+        try {
+          const freshStudent = await getCurrentAuthenticatedStudent();
+          if (freshStudent) {
+            const mapped = mapStudentToProfile(freshStudent);
+            saveProfile(mapped);
+            setUserProfile(mapped);
+            if (freshStudent.resume && freshStudent.resume.detectedSkills) {
+              setUploadedResume(freshStudent.resume);
+            }
+          }
+        } catch (err) {
+          console.warn("[App] Could not fetch fresh student on mount:", err.message);
+        }
+      }
+    }
+    syncStudentFromBackend();
+  }, []);
+
+  const handleAuthSuccess = async (user, profile) => {
     setCurrentUser(user);
+
+    try {
+      const freshStudent = await getCurrentAuthenticatedStudent();
+      if (freshStudent) {
+        const mapped = mapStudentToProfile(freshStudent);
+        saveProfile(mapped);
+        setUserProfile(mapped);
+        if (freshStudent.resume && freshStudent.resume.detectedSkills) {
+          setUploadedResume(freshStudent.resume);
+        }
+        if (mapped && (mapped.degree || mapped.selectedSkills?.length > 0)) {
+          setShowDashboard(true);
+        }
+        return;
+      }
+    } catch (e) {
+      // Fallback to passed profile
+    }
+
     setUserProfile(profile);
     if (profile && (profile.degree || profile.selectedSkills?.length > 0)) {
       setShowDashboard(true);
@@ -99,6 +145,7 @@ export default function App() {
     return (
       <Dashboard
         profileData={userProfile}
+        uploadedResume={uploadedResume}
         onBackToHome={() => setShowDashboard(false)}
         onEditProfile={() => {
           setShowDashboard(false);
@@ -289,7 +336,12 @@ export default function App() {
         isOpen={showResumeModal}
         onClose={() => setShowResumeModal(false)}
         currentResume={uploadedResume}
-        onResumeAnalyzed={(data) => setUploadedResume(data)}
+        onResumeAnalyzed={(data) => {
+          saveResume(data);
+          setUploadedResume(data);
+          const updated = getProfile();
+          if (updated) setUserProfile(updated);
+        }}
       />
       <SkillAnalyzerModal
         isOpen={showSkillAnalyzerModal}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SkillJourneyHeader from "../components/skillJourney/SkillJourneyHeader";
 import AssessmentIntro from "../components/assessment/AssessmentIntro";
 import SkillAreaSelector from "../components/assessment/SkillAreaSelector";
@@ -10,9 +10,12 @@ import {
   assessmentQuestionsByArea,
   calculateAssessmentResults,
 } from "../data/assessmentQuestions";
+import { getProfile, saveProfile, getCurrentUser } from "../utils/profileStorage";
+import { updateCurrentStudentAssessment, getSkillMatchingWithProfile } from "../utils/api";
 import "../styles/skillJourney.css";
 
 export default function SkillAssessment({
+  profileData,
   onNavigateTab,
   onNavigateHome,
   onNavigateDashboard,
@@ -60,12 +63,50 @@ export default function SkillAssessment({
     }
   };
 
-  const handleNextQuestion = () => {
+  const handleNextQuestion = async () => {
     if (isLastQuestion) {
       // Calculate authentic qualitative results from user's answers
       const results = calculateAssessmentResults(selectedAreaId, answers);
+
+      // Fetch real matching opportunities for the assessed skill area from MongoDB
+      const activeProfile = profileData || getProfile() || {};
+      const assessedSkills = results.snapshot.map((s) => s.skill);
+      const tempProfile = {
+        ...activeProfile,
+        skills: Array.from(new Set([...(activeProfile.skills || []), ...assessedSkills])),
+      };
+
+      try {
+        const realMatches = await getSkillMatchingWithProfile(tempProfile, { limit: 3 });
+        if (Array.isArray(realMatches) && realMatches.length > 0) {
+          results.opportunities = realMatches;
+        }
+      } catch (e) {
+        console.warn("[SkillAssessment] Could not fetch real matching opportunities:", e.message);
+      }
+
       setAssessmentResults(results);
       setStep("results");
+
+      // Save to localStorage
+      const updatedProfile = {
+        ...activeProfile,
+        assessmentResults: results,
+        assessmentSkills: Array.from(
+          new Set([...(activeProfile.assessmentSkills || []), ...assessedSkills])
+        ),
+      };
+      saveProfile(updatedProfile);
+
+      // Save to backend MongoDB if logged in
+      const currentUser = getCurrentUser();
+      if (currentUser) {
+        try {
+          await updateCurrentStudentAssessment(results);
+        } catch (err) {
+          console.warn("[SkillAssessment] Could not save assessment to backend:", err.message);
+        }
+      }
     } else {
       setCurrentQuestionIndex((prev) => prev + 1);
     }

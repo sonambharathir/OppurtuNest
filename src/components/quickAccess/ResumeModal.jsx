@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { parseResumeText, extractTextFromFile } from "../../utils/resumeParser";
+import { updateCurrentStudentResume } from "../../utils/api";
+import { getCurrentUser } from "../../utils/profileStorage";
 
 export default function ResumeModal({
   isOpen,
@@ -34,6 +36,17 @@ export default function ResumeModal({
 
   if (!isOpen) return null;
 
+  const persistResumeIfLoggedIn = async (parsed) => {
+    const user = getCurrentUser();
+    if (user && !parsed.isSample) {
+      try {
+        await updateCurrentStudentResume(parsed);
+      } catch (err) {
+        console.warn("[ResumeModal] Could not sync resume with backend:", err.message);
+      }
+    }
+  };
+
   // Process real file
   const handleFileProcess = async (selectedFile) => {
     if (!selectedFile) return;
@@ -44,16 +57,16 @@ export default function ResumeModal({
       const parsed = parseResumeText(extractedText, selectedFile.name);
       parsed.size = `${Math.max(1, Math.round(selectedFile.size / 1024))} KB`;
 
-      setTimeout(() => {
+      setTimeout(async () => {
         setFile(parsed);
         setIsAnalyzing(false);
+        await persistResumeIfLoggedIn(parsed);
         if (onResumeAnalyzed) {
           onResumeAnalyzed(parsed);
         }
       }, 600);
     } catch (err) {
       console.error("Error reading resume file:", err);
-      // Fallback
       const parsed = parseResumeText(selectedFile.name, selectedFile.name);
       setFile(parsed);
       setIsAnalyzing(false);
@@ -66,11 +79,12 @@ export default function ResumeModal({
     if (!pastedText.trim()) return;
 
     setIsAnalyzing(true);
-    setTimeout(() => {
+    setTimeout(async () => {
       const parsed = parseResumeText(pastedText, "Pasted_Resume_Text.txt");
-      parsed.size = `${Math.round(pastedText.length / 1024 * 10) / 10} KB`;
+      parsed.size = `${Math.round((pastedText.length / 1024) * 10) / 10} KB`;
       setFile(parsed);
       setIsAnalyzing(false);
+      await persistResumeIfLoggedIn(parsed);
       if (onResumeAnalyzed) {
         onResumeAnalyzed(parsed);
       }
@@ -94,24 +108,62 @@ export default function ResumeModal({
     setIsDragging(false);
   };
 
-  // Load a realistic sample resume for testing
-  const handleLoadSample = () => {
+  // Load a realistic sample resume for testing (isolated sample flow)
+  const handleLoadSample = (sampleType = "frontend") => {
     setIsAnalyzing(true);
-    const sampleText = `
-      Alex Chen - Frontend & Full Stack Developer
-      Email: alex.chen@example.com | Phone: (555) 234-5678 | github.com/alexchen
-      
-      SKILLS:
-      React, JavaScript, HTML & CSS, TypeScript, Git & GitHub, Tailwind, REST APIs, Problem Solving, Communication
-      
-      EXPERIENCE & PROJECTS:
-      Web Application Developer - Built responsive user interfaces in React and JavaScript.
-      Optimized page load speeds by 30% and implemented modern component architecture.
-      Created collaborative tools using Git and GitHub workflows with Scrum and Agile teams.
-    `;
+    let sampleText = "";
+    let sampleFileName = "Sample_Resume.pdf";
+
+    if (sampleType === "ai") {
+      sampleFileName = "Sarah_Patel_AI_ML_Resume.pdf";
+      sampleText = `
+        Sarah Patel - Machine Learning & Data Science Engineer
+        Email: sarah.patel@example.com | Phone: (555) 789-0123 | github.com/sarahpatel
+        Education: B.Tech in Computer Science & Engineering (Final Year)
+
+        SKILLS:
+        Python, Machine Learning, Deep Learning, Data Science, Data Analysis, PyTorch, TensorFlow, Pandas, NumPy, Statistics, SQL, Problem Solving
+
+        EXPERIENCE & PROJECTS:
+        AI Research Intern - Trained deep learning models with PyTorch on large datasets.
+        Data Science Project - Built predictive pipelines in Python with Pandas, NumPy, and Scikit-Learn.
+        Published research paper on neural network architectures and computer vision.
+      `;
+    } else if (sampleType === "biotech") {
+      sampleFileName = "Elena_Rostova_Biotech_Resume.pdf";
+      sampleText = `
+        Elena Rostova - Biotechnology & Life Sciences Researcher
+        Email: elena.rostova@example.com | Phone: (555) 345-6789 | linkedin.com/in/elenarostova
+        Education: B.S. in Biotechnology & Molecular Biology (3rd Year)
+
+        SKILLS:
+        Biotechnology, Life Sciences, Bioinformatics, Biology, Genetics, Research, Pharmaceuticals, Problem Solving, Communication
+
+        EXPERIENCE & PROJECTS:
+        Undergraduate Laboratory Researcher - Conducted molecular biology and bioinformatics genomic analysis.
+        Co-authored paper on genetic sequencing techniques and published findings in journal.
+      `;
+    } else {
+      sampleFileName = "Alex_Chen_Frontend_Resume.pdf";
+      sampleText = `
+        Alex Chen - Frontend & Full Stack Developer
+        Email: alex.chen@example.com | Phone: (555) 234-5678 | github.com/alexchen
+        Education: B.Tech in Computer Science (3rd Year)
+        
+        SKILLS:
+        React, JavaScript, HTML & CSS, TypeScript, Git & GitHub, Tailwind, REST APIs, Problem Solving, Communication
+        
+        EXPERIENCE & PROJECTS:
+        Web Application Developer - Built responsive user interfaces in React and JavaScript.
+        Optimized page load speeds by 30% and implemented modern component architecture.
+        Created collaborative tools using Git and GitHub workflows with Scrum and Agile teams.
+      `;
+    }
+
     setTimeout(() => {
-      const parsed = parseResumeText(sampleText, "Alex_Chen_Sample_Resume.pdf");
+      const parsed = parseResumeText(sampleText, sampleFileName);
       parsed.size = "142 KB";
+      parsed.isSample = true;
       setFile(parsed);
       setIsAnalyzing(false);
       if (onResumeAnalyzed) {
@@ -218,14 +270,36 @@ export default function ResumeModal({
                     </p>
                   </div>
 
-                  <div className="qa-sample-btn-wrap">
-                    <button
-                      type="button"
-                      className="qa-sample-btn"
-                      onClick={handleLoadSample}
-                    >
-                      <span>✨</span> Don't have a file right now? Try a Sample Resume
-                    </button>
+                  <div className="qa-sample-btn-wrap" style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "center" }}>
+                    <span style={{ fontSize: "12px", color: "#6a7c68", fontWeight: 600 }}>
+                      ✨ Don't have a file right now? Try a domain preset:
+                    </span>
+                    <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", justifyContent: "center" }}>
+                      <button
+                        type="button"
+                        className="qa-sample-btn"
+                        onClick={() => handleLoadSample("frontend")}
+                        title="Load Web/Frontend Developer Resume"
+                      >
+                        🌐 Web Developer
+                      </button>
+                      <button
+                        type="button"
+                        className="qa-sample-btn"
+                        onClick={() => handleLoadSample("ai")}
+                        title="Load AI & Data Science Resume"
+                      >
+                        🤖 AI / Data Scientist
+                      </button>
+                      <button
+                        type="button"
+                        className="qa-sample-btn"
+                        onClick={() => handleLoadSample("biotech")}
+                        title="Load Biotechnology & Healthcare Resume"
+                      >
+                        🧬 Biotech Researcher
+                      </button>
+                    </div>
                   </div>
                 </>
               ) : (
@@ -307,17 +381,23 @@ export default function ResumeModal({
               {/* Real Extracted Skills */}
               <div className="qa-checklist-box">
                 <h4 className="qa-section-label">
-                  <span>🎯</span> Actual Skills Found in Your Resume ({file.detectedSkills.length})
+                  <span>🎯</span> Actual Skills Found in Your Resume ({file.detectedSkills ? file.detectedSkills.length : 0})
                 </h4>
-                <div className="qa-skills-pills">
-                  {file.detectedSkills.map((sk) => (
-                    <span key={sk} className="qa-skill-pill">
-                      <span>✓</span> {sk}
-                    </span>
-                  ))}
-                </div>
+                {file.detectedSkills && file.detectedSkills.length > 0 ? (
+                  <div className="qa-skills-pills">
+                    {file.detectedSkills.map((sk) => (
+                      <span key={sk} className="qa-skill-pill">
+                        <span>✓</span> {sk}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p style={{ margin: "6px 0", fontSize: "13px", color: "#8a5839" }}>
+                    No recognized technical skills found in this text. You can add your skills manually in Your Skills.
+                  </p>
+                )}
                 <p style={{ margin: "4px 0 0", fontSize: "12px", color: "#6a7c68" }}>
-                  💡 These skills will now be used automatically in your <strong>Skill Analyzer</strong>!
+                  💡 These skills will now be used automatically in your <strong>Skill Analyzer</strong> and recommendations!
                 </p>
               </div>
 
@@ -393,7 +473,8 @@ export default function ResumeModal({
             <button
               type="button"
               className="qa-btn-primary"
-              onClick={() => {
+              onClick={async () => {
+                await persistResumeIfLoggedIn(file);
                 if (onResumeAnalyzed) {
                   onResumeAnalyzed(file);
                 }

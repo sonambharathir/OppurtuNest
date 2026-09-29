@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import SkillJourneyHeader from "../components/skillJourney/SkillJourneyHeader";
 import SkillOpportunityCard from "../components/skillJourney/SkillOpportunityCard";
 import OpportunityModal from "../components/skillJourney/OpportunityModal";
-import { matchedOpportunities } from "../data/skillJourneyData";
+import { getProfile, getCurrentUser } from "../utils/profileStorage";
+import { getCurrentStudentSkillMatching, getSkillMatchingWithProfile } from "../utils/api";
 import "../styles/skillJourney.css";
 
 export default function SkillMatching({
@@ -15,19 +16,42 @@ export default function SkillMatching({
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [selectedOpportunity, setSelectedOpportunity] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [matchingOpportunities, setMatchingOpportunities] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
 
-  // Filter opportunities based on qualitative match tier and category
-  const filteredOpportunities = matchedOpportunities.filter((opp) => {
-    const matchesTier =
-      matchFilter === "all" ||
-      opp.matchLabel.toLowerCase().includes(matchFilter.toLowerCase());
+  const fetchMatches = useCallback(async () => {
+    setIsLoading(true);
+    setHasError(false);
 
-    const matchesCategory =
-      categoryFilter === "all" ||
-      opp.category.toLowerCase() === categoryFilter.toLowerCase();
+    try {
+      const activeProfile = profileData || getProfile();
+      const currentUser = getCurrentUser();
 
-    return matchesTier && matchesCategory;
-  });
+      let data = [];
+      if (currentUser) {
+        data = await getCurrentStudentSkillMatching({ matchFilter, categoryFilter });
+      } else if (activeProfile) {
+        data = await getSkillMatchingWithProfile(activeProfile, { matchFilter, categoryFilter });
+      }
+
+      if (Array.isArray(data)) {
+        setMatchingOpportunities(data);
+      } else {
+        setMatchingOpportunities([]);
+      }
+    } catch (err) {
+      console.error("[SkillMatching] Error fetching matches:", err.message);
+      setHasError(true);
+      setMatchingOpportunities([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [profileData, matchFilter, categoryFilter]);
+
+  useEffect(() => {
+    fetchMatches();
+  }, [fetchMatches]);
 
   const handleViewOpportunity = (opp) => {
     setSelectedOpportunity(opp);
@@ -38,6 +62,8 @@ export default function SkillMatching({
     setIsModalOpen(false);
     setSelectedOpportunity(null);
   };
+
+  const studentName = profileData?.studentName || profileData?.name || "";
 
   return (
     <div className="skill-journey-page">
@@ -105,28 +131,56 @@ export default function SkillMatching({
           {/* Results Summary */}
           <div className="matching-summary-row">
             <span className="matching-count-tag">
-              🎯 {filteredOpportunities.length} opportunities matching {profileData?.studentName ? `${profileData.studentName}'s` : "your"} profile
+              🎯 {matchingOpportunities.length} opportunities matching {studentName ? `${studentName}'s` : "your"} profile
             </span>
             <span className="matching-engine-note">
-              Based on qualitative skill overlap • Connects with backend matching engine
+              Based on real skill overlap • Live backend matching engine
             </span>
           </div>
 
+          {/* Loading State */}
+          {isLoading && (
+            <div style={{ textAlign: "center", padding: "40px 0", color: "#60725c", fontSize: "14px" }}>
+              🌱 Calculating real opportunity matches for your skill profile...
+            </div>
+          )}
+
+          {/* Error State */}
+          {!isLoading && hasError && (
+            <div className="growth-empty-card">
+              <div className="growth-empty-icon">⚠️</div>
+              <h3 className="growth-empty-title">Unable to load matches right now</h3>
+              <p className="growth-empty-text">
+                Please check that the backend server is running and try again.
+              </p>
+              <button
+                type="button"
+                className="add-skill-trigger-btn"
+                onClick={fetchMatches}
+              >
+                Retry ↻
+              </button>
+            </div>
+          )}
+
           {/* Opportunities Cards Grid */}
-          {filteredOpportunities.length > 0 ? (
+          {!isLoading && !hasError && matchingOpportunities.length > 0 && (
             <div className="matching-grid">
-              {filteredOpportunities.map((opportunity) => (
+              {matchingOpportunities.map((opportunity) => (
                 <SkillOpportunityCard
-                  key={opportunity.id}
+                  key={opportunity.id || opportunity._id}
                   opportunity={opportunity}
                   onView={handleViewOpportunity}
                 />
               ))}
             </div>
-          ) : (
+          )}
+
+          {/* Clean Empty State */}
+          {!isLoading && !hasError && matchingOpportunities.length === 0 && (
             <div className="growth-empty-card">
               <div className="growth-empty-icon">🍃</div>
-              <h3 className="growth-empty-title">No opportunities found for this filter</h3>
+              <h3 className="growth-empty-title">No matching opportunities found for this filter</h3>
               <p className="growth-empty-text">
                 Try switching your filter above, or add new skills to your profile to expand your match results.
               </p>

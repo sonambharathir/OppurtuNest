@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
-import { careerPathways, defaultStudentSkills } from "../../data/skillJourneyData";
+import { useState, useEffect, useMemo } from "react";
+import { careerPathways } from "../../data/skillJourneyData";
+import { getProfile } from "../../utils/profileStorage";
 
 export default function SkillAnalyzerModal({
   isOpen,
@@ -9,7 +10,6 @@ export default function SkillAnalyzerModal({
   onOpenResumeUpload,
 }) {
   const [selectedRoleId, setSelectedRoleId] = useState("frontend-dev");
-  const [usePreviewSkills, setUsePreviewSkills] = useState(false);
 
   // Close on ESC
   useEffect(() => {
@@ -22,25 +22,39 @@ export default function SkillAnalyzerModal({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
+  const activeProfile = useMemo(() => getProfile() || {}, [isOpen]);
 
   const currentRole =
     careerPathways.find((r) => r.id === selectedRoleId) || careerPathways[0];
 
   const hasRealResume = Boolean(
-    uploadedResume && uploadedResume.detectedSkills && uploadedResume.detectedSkills.length > 0
+    (uploadedResume && uploadedResume.detectedSkills && uploadedResume.detectedSkills.length > 0) ||
+    (activeProfile.resumeSkills && activeProfile.resumeSkills.length > 0)
   );
 
-  // Determine which skills to analyze:
-  // 1. Real skills from uploaded resume (default if available)
-  // 2. Or sample student profile skills (only if user explicitly chooses to explore preview or hasn't uploaded)
-  const activeSkillsList = hasRealResume
-    ? uploadedResume.detectedSkills
-    : usePreviewSkills
-    ? defaultStudentSkills.map((s) => s.name)
-    : [];
+  const allKnownSkills = useMemo(() => {
+    const pSkills = activeProfile.selectedSkills || activeProfile.skills || [];
+    const rSkills = uploadedResume?.detectedSkills || activeProfile.resumeSkills || [];
+    const aSkills = activeProfile.assessmentSkills || [];
 
-  const activeSkillsLower = activeSkillsList.map((s) => s.toLowerCase());
+    const set = new Set();
+    const result = [];
+    [...rSkills, ...pSkills, ...aSkills].forEach((s) => {
+      if (s && typeof s === "string") {
+        const cleanSkill = s.trim();
+        const lower = cleanSkill.toLowerCase();
+        if (cleanSkill && !set.has(lower)) {
+          set.add(lower);
+          result.push(cleanSkill);
+        }
+      }
+    });
+    return result;
+  }, [activeProfile, uploadedResume]);
+
+  if (!isOpen) return null;
+
+  const activeSkillsLower = allKnownSkills.map((s) => s.toLowerCase());
 
   // Find matched core skills against the role
   const matchedCoreSkills = currentRole.coreSkills.filter((cs) =>
@@ -57,10 +71,10 @@ export default function SkillAnalyzerModal({
     activeSkillsLower.some((sk) => sk.includes(wd.name.toLowerCase()) || wd.name.toLowerCase().includes(sk))
   );
 
-  // Real match percentage
+  // Real match calculation
   const totalCore = currentRole.coreSkills.length;
   const matchPercent =
-    activeSkillsList.length === 0
+    allKnownSkills.length === 0
       ? 0
       : Math.min(100, Math.round((matchedCoreSkills.length / Math.max(1, totalCore)) * 100));
 
@@ -90,7 +104,7 @@ export default function SkillAnalyzerModal({
 
         {/* Body */}
         <div className="qa-modal-body">
-          {/* Resume Status Banner */}
+          {/* Resume / Skills Status Banner */}
           {hasRealResume ? (
             <div
               style={{
@@ -107,7 +121,7 @@ export default function SkillAnalyzerModal({
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <span style={{ fontSize: "18px" }}>📄</span>
                 <span style={{ fontSize: "13px", color: "#2b5735", fontWeight: 700 }}>
-                  Analyzing real skills from: <strong>{uploadedResume.fileName}</strong> ({uploadedResume.detectedSkills.length} skills found)
+                  Analyzing real skills from: <strong>{uploadedResume?.fileName || activeProfile.resume?.fileName || "Your Resume"}</strong> ({allKnownSkills.length} total profile skills)
                 </span>
               </div>
               {onOpenResumeUpload && (
@@ -130,7 +144,42 @@ export default function SkillAnalyzerModal({
                 </button>
               )}
             </div>
-          ) : !usePreviewSkills ? (
+          ) : allKnownSkills.length > 0 ? (
+            <div
+              style={{
+                background: "#f0f7ee",
+                border: "1px solid #b7dab2",
+                borderRadius: "12px",
+                padding: "8px 14px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                fontSize: "12.5px",
+                color: "#2b5735",
+                fontWeight: 700,
+              }}
+            >
+              <span>🌿 Analyzing {allKnownSkills.length} saved profile skills.</span>
+              {onOpenResumeUpload && (
+                <button
+                  type="button"
+                  onClick={onOpenResumeUpload}
+                  style={{
+                    background: "#ffffff",
+                    border: "1px solid #72a365",
+                    borderRadius: "8px",
+                    padding: "3px 9px",
+                    fontSize: "11.5px",
+                    color: "#2b5735",
+                    cursor: "pointer",
+                    fontWeight: 700,
+                  }}
+                >
+                  + Upload Resume
+                </button>
+              )}
+            </div>
+          ) : (
             <div
               style={{
                 background: "#fff9ee",
@@ -146,10 +195,10 @@ export default function SkillAnalyzerModal({
             >
               <span style={{ fontSize: "28px" }}>📄</span>
               <h3 style={{ margin: 0, fontFamily: "Fredoka, sans-serif", fontSize: "17px", color: "#8c5b16" }}>
-                No Resume Uploaded Yet
+                No Skills or Resume Recorded Yet
               </h3>
               <p style={{ margin: 0, fontSize: "13px", color: "#6e5328", maxWidth: "420px" }}>
-                To see your <strong>real, personalized</strong> skills and match score, upload your resume first!
+                Add your skills in Your Skills or upload your resume to see your real, personalized skill match and gap analysis!
               </p>
               <div style={{ display: "flex", gap: "10px", marginTop: "4px", flexWrap: "wrap", justifyContent: "center" }}>
                 {onOpenResumeUpload && (
@@ -158,49 +207,22 @@ export default function SkillAnalyzerModal({
                     className="qa-btn-primary"
                     onClick={onOpenResumeUpload}
                   >
-                    📄 Upload Your Resume Now
+                    📄 Upload Your Resume
                   </button>
                 )}
-                <button
-                  type="button"
-                  className="qa-sample-btn"
-                  onClick={() => setUsePreviewSkills(true)}
-                >
-                  Or explore with preview skills
-                </button>
+                {onNavigateSkillJourney && (
+                  <button
+                    type="button"
+                    className="qa-sample-btn"
+                    onClick={() => {
+                      onClose();
+                      onNavigateSkillJourney("skills");
+                    }}
+                  >
+                    🌿 Add Skills Manually
+                  </button>
+                )}
               </div>
-            </div>
-          ) : (
-            <div
-              style={{
-                background: "#fbf8f1",
-                border: "1px dashed #ded5c2",
-                borderRadius: "12px",
-                padding: "8px 14px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                fontSize: "12.5px",
-                color: "#6a7c68",
-              }}
-            >
-              <span>Showing sample preview skills.</span>
-              {onOpenResumeUpload && (
-                <button
-                  type="button"
-                  onClick={onOpenResumeUpload}
-                  style={{
-                    background: "transparent",
-                    border: "none",
-                    color: "#3b7445",
-                    textDecoration: "underline",
-                    cursor: "pointer",
-                    fontWeight: 700,
-                  }}
-                >
-                  Upload your real resume
-                </button>
-              )}
             </div>
           )}
 
@@ -239,10 +261,12 @@ export default function SkillAnalyzerModal({
 
             <p className="qa-banner-summary">
               {matchPercent >= 75
-                ? "🌟 Strong Match! Your resume shows strong foundations for this role."
+                ? "🌟 Strong Match! Your profile shows strong foundations for this role."
                 : matchPercent >= 40
                 ? "🌱 Good Start! You have some core skills, with a few key ones to build."
-                : "💡 Beginner Level: Learning the core skills below will open up this career path."}
+                : allKnownSkills.length > 0
+                ? "💡 Beginner Level: Learning the core skills below will open up this career path."
+                : "Add your skills to see your real match level for this career path."}
             </p>
           </div>
 
@@ -271,9 +295,9 @@ export default function SkillAnalyzerModal({
 
                 {matchedCoreSkills.length === 0 && matchedBonusSkills.length === 0 && (
                   <div style={{ padding: "12px", textAlign: "center", color: "#7b8e78", fontSize: "12.5px" }}>
-                    {hasRealResume
-                      ? "None of the core skills for this role were detected in your resume yet."
-                      : "Upload your resume to see your real matching skills here."}
+                    {allKnownSkills.length > 0
+                      ? "None of the core skills for this role were found in your current skills."
+                      : "Add skills or upload your resume to see matching skills here."}
                   </div>
                 )}
               </div>

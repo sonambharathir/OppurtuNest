@@ -10,8 +10,8 @@ import Step6Goals from "./Step6Goals";
 import Step7Preferences from "./Step7Preferences";
 import ProfileCompletion from "./ProfileCompletion";
 import { allSkills, initialFormData } from "../../data/onboardingData";
-import { saveProfile, getProfile, saveStudentId } from "../../utils/profileStorage";
-import { createStudent, mapProfileToBackendStudent } from "../../utils/api";
+import { saveProfile, getProfile, saveStudentId, getCurrentUser, getAuthToken } from "../../utils/profileStorage";
+import { createStudent, updateCurrentStudentProfile, mapProfileToBackendStudent } from "../../utils/api";
 import "../ProfileOnboarding.css";
 
 export default function ProfileOnboarding({ onClose, onComplete }) {
@@ -231,7 +231,18 @@ export default function ProfileOnboarding({ onClose, onComplete }) {
     // 2. Post to backend in background/async
     try {
       const studentPayload = mapProfileToBackendStudent(formData);
-      const savedStudent = await createStudent(studentPayload);
+      const currentUser = getCurrentUser();
+      const token = getAuthToken();
+
+      let savedStudent = null;
+      if (currentUser && token) {
+        // Authenticated student: update existing MongoDB record
+        savedStudent = await updateCurrentStudentProfile(studentPayload);
+      } else {
+        // New unauthenticated onboarding student: create record
+        savedStudent = await createStudent(studentPayload);
+      }
+
       if (savedStudent && savedStudent._id) {
         saveStudentId(savedStudent._id);
         const updated = { ...formData, _id: savedStudent._id };

@@ -1,22 +1,39 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DashboardHeader from "../components/dashboard/DashboardHeader";
 import OpportunityCategories from "../components/dashboard/OpportunityCategories";
 import RecommendedSection from "../components/dashboard/RecommendedSection";
 import CategoryOpportunitiesModal from "../components/quickAccess/CategoryOpportunitiesModal";
-import { getProfile } from "../utils/profileStorage";
+import ResumeModal from "../components/quickAccess/ResumeModal";
+import { getProfile, getResume, saveResume } from "../utils/profileStorage";
 import "../styles/dashboard.css";
 
 export default function Dashboard({
   profileData,
+  uploadedResume,
   onBackToHome,
   onEditProfile,
   onNavigateSkillJourney,
   onLogout,
 }) {
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [showResumeModal, setShowResumeModal] = useState(false);
+  const [activeResume, setActiveResume] = useState(() => uploadedResume || getResume());
+  const [activeProfile, setActiveProfile] = useState(() => profileData || getProfile());
 
-  // Read stored profile from localStorage if not provided via props
-  const activeProfile = profileData || getProfile();
+  useEffect(() => {
+    if (uploadedResume) setActiveResume(uploadedResume);
+  }, [uploadedResume]);
+
+  useEffect(() => {
+    if (profileData) setActiveProfile(profileData);
+  }, [profileData]);
+
+  const handleResumeAnalyzed = (resumeData) => {
+    saveResume(resumeData);
+    setActiveResume(resumeData);
+    const updated = getProfile();
+    if (updated) setActiveProfile(updated);
+  };
 
   const handleSelectCategory = (category) => {
     const title = typeof category === "string" ? category : category?.title || category?.name;
@@ -42,7 +59,9 @@ export default function Dashboard({
           {/* Personalized Recommendations Section */}
           <RecommendedSection
             profileData={activeProfile}
+            uploadedResume={activeResume}
             onStartOnboarding={onEditProfile}
+            onOpenResume={() => setShowResumeModal(true)}
           />
         </main>
       </div>
@@ -54,7 +73,18 @@ export default function Dashboard({
           category={selectedCategory}
           onClose={() => setSelectedCategory(null)}
           userProfile={activeProfile}
-          onOpenResume={onEditProfile}
+          uploadedResume={activeResume}
+          onOpenResume={() => setShowResumeModal(true)}
+        />
+      )}
+
+      {/* Resume Upload Modal in Dashboard */}
+      {showResumeModal && (
+        <ResumeModal
+          isOpen={showResumeModal}
+          onClose={() => setShowResumeModal(false)}
+          currentResume={activeResume}
+          onResumeAnalyzed={handleResumeAnalyzed}
         />
       )}
     </div>

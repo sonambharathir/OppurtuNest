@@ -1,7 +1,8 @@
 import { CategoryIcon } from "./DashboardIcons";
 
-export default function OpportunityCategoryCard({ category, onSelect }) {
+export default function OpportunityCategoryCard({ category, count, onSelect }) {
   const { number, label, title, description, id, badge } = category;
+  const displayCount = count !== undefined && count !== null ? count : number;
 
   return (
     <article
@@ -19,7 +20,7 @@ export default function OpportunityCategoryCard({ category, onSelect }) {
       {/* Top Header of Card: Number Tag + Icon */}
       <div className="cat-card-header">
         <div className="cat-card-tag">
-          <span className="cat-tag-number">{number}</span>
+          <span className="cat-tag-number">{displayCount}</span>
           <span className="cat-tag-label">{label}</span>
         </div>
 
